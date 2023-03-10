@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.19)
-project(team02 C)
+project(team02)
 
-set(CMAKE_C_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 
 add_executable(team02
-        main.c)
+        main.cpp)
