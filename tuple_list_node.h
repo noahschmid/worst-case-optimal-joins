@@ -1,5 +1,5 @@
-#ifndef TEAM02_TUPLE_LIST_H
-#define TEAM02_TUPLE_LIST_H
+#ifndef TEAM02_TUPLE_LIST_NODE_H
+#define TEAM02_TUPLE_LIST_NODE_H
 
 #include <vector>
 #include <iostream>
@@ -29,4 +29,5 @@ struct TupleListNode {
 
 };
 
-#endif //TEAM02_TUPLE_LIST_H
+
+#endif //TEAM02_TUPLE_LIST_NODE_H

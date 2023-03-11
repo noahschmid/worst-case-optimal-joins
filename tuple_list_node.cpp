@@ -1,4 +1,4 @@
-#include "tuple_list.h"
+#include "tuple_list_node.h"
 
 TupleListNode::TupleListNode(const std::vector<int> &row, TupleListNode *nextNode) : tuple_size(row.size()),
                                                                                      next(nextNode) {
