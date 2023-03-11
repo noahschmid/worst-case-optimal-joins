@@ -22,6 +22,7 @@ public:
 
     int get_data_at(int row, int col) const { return data[row][col]; }
 
+    // for debugging purposes
     friend std::ostream& operator<<(std::ostream& os, const Table& table);
 };
 

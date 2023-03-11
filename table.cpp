@@ -33,14 +33,17 @@ void Table::append_row(const std::vector<int> &new_row) {
 }
 
 ostream &operator<<(ostream &os, const Table &table) {
-    for (const auto &row: table.data) {
+    for (int row_id = 0; row_id < table.data.size(); row_id++) {
+        const vector<int> &row = table.data[row_id];
         for (int col_id = 0; col_id < table.num_columns; col_id++) {
             os << row[col_id];
             if (col_id != table.num_columns - 1) {
                 os << ' ';
             }
         }
-        os << endl;
+        if (row_id != table.data.size() - 1) {
+            os << endl;
+        }
     }
     return os;
 }
