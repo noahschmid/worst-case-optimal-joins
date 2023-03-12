@@ -21,6 +21,11 @@ struct HashTrieEntry {
 
     ~HashTrieEntry();
 
+    // disable copy constructor, copy assignment operator
+    HashTrieEntry(const HashTrieEntry &) = delete;
+
+    HashTrieEntry &operator=(const HashTrieEntry &) = delete;
+
     // for debugging purposes
     friend std::ostream &operator<<(std::ostream &os, const HashTrieEntry &entry);
 

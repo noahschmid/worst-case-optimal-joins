@@ -4,7 +4,7 @@ using namespace std;
 
 HashTrieEntry::HashTrieEntry() {
     points_to_tuple_list = true;
-    tuple_list_ptr = new TupleList;
+    tuple_list_ptr = nullptr;
 }
 
 HashTrieEntry::~HashTrieEntry() {
@@ -19,18 +19,34 @@ HashTrieEntry::~HashTrieEntry() {
 
 std::ostream &operator<<(std::ostream &os, const HashTrieEntry &entry) {
     if (entry.points_to_tuple_list) {
-        os << *(entry.tuple_list_ptr);
+        if (entry.tuple_list_ptr) {
+            os << *(entry.tuple_list_ptr);
+        } else {
+            os << "uninitialized entry";
+        }
     } else {
-        os << *(entry.hash_trie_node_ptr);
+        if (entry.hash_trie_node_ptr) {
+            os << *(entry.hash_trie_node_ptr);
+        } else {
+            os << " uninitialized entry";
+        }
     }
     return os;
 }
 
 std::ostream &print_with_indent(std::ostream &os, const HashTrieEntry &entry, int num_tabs) {
     if (entry.points_to_tuple_list) {
-        os << *entry.tuple_list_ptr;
+        if (entry.tuple_list_ptr) {
+            os << *entry.tuple_list_ptr;
+        } else {
+            os << " uninitialized entry";
+        }
     } else {
-        print_with_indent(os, *entry.hash_trie_node_ptr, num_tabs);
+        if (entry.hash_trie_node_ptr) {
+            print_with_indent(os, *entry.hash_trie_node_ptr, num_tabs);
+        } else {
+            os << " uninitialized entry";
+        }
     }
     return os;
 }
@@ -53,7 +69,9 @@ void HashTrieNode::insert_tuple_at(TupleListNode *node, int index) {
         std::cerr << "This entry already points to another hash trie node. Shouldn't append a tuple here.";
         exit(-1);
     }
-
+    if (entry.tuple_list_ptr == nullptr) {
+        entry.tuple_list_ptr = new TupleList();
+    }
     entry.tuple_list_ptr->append(node);
 }
 
@@ -66,6 +84,7 @@ void HashTrieNode::insert_hash_trie_node_at(HashTrieNode *node, int index) {
     }
 
     entry.points_to_tuple_list = false;
+    delete entry.tuple_list_ptr;
     entry.hash_trie_node_ptr = node;
     node->parent = this;
 }
