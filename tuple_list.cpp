@@ -26,7 +26,7 @@ std::ostream &operator<<(std::ostream &os, const TupleListNode &node) {
             os << ", ";
         }
     }
-    os<< ')';
+    os << ')';
     return os;
 }
 
@@ -53,6 +53,12 @@ TupleList::~TupleList() {
 }
 
 std::ostream &operator<<(std::ostream &os, const TupleList &list) {
+    os << "list: ";
+    if (list.empty()) {
+        os << "empty";
+        return os;
+    }
+
     TupleListNode *curr = list.head->next;
     while (curr != nullptr) {
         os << (*curr);
@@ -62,4 +68,15 @@ std::ostream &operator<<(std::ostream &os, const TupleList &list) {
         curr = curr->next;
     }
     return os;
+}
+
+TupleListNode *TupleList::pop_left() {
+    if (empty()) {
+        return nullptr;
+    }
+
+    TupleListNode *popped_node = head->next;
+    head->next = popped_node->next;
+    popped_node->next = nullptr;
+    return popped_node;
 }

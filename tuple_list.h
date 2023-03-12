@@ -38,7 +38,11 @@ struct TupleList {
 
     void append(TupleListNode *node);
 
+    TupleListNode* pop_left();
+
     ~TupleList();
+
+    bool empty() const { return head->next == nullptr; }
 
     // for debugging purposes
     friend std::ostream &operator<<(std::ostream &os, const TupleList &list);

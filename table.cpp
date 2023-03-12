@@ -1,12 +1,13 @@
 #include "table.h"
 #include <fstream>
-
+#include <iostream>
 using namespace std;
 
 Table::Table(const std::string &tsv_filename, int num_cols) : num_columns(num_cols) {
     ifstream infile(tsv_filename);
     if (!infile.is_open()) {
-        throw std::runtime_error("the file " + tsv_filename + " cannot be opened.");
+        cerr<<("the file " + tsv_filename + " cannot be opened.");
+        exit(-1);
     }
     bool reach_end = false;
     while (!reach_end) {
@@ -26,7 +27,8 @@ Table::Table(const std::string &tsv_filename, int num_cols) : num_columns(num_co
 
 void Table::append_row(const std::vector<int> &new_row) {
     if (new_row.size() != num_columns) {
-        throw std::invalid_argument("The new row is of a different size.");
+        cerr<<("The new row is of a different size.");
+        exit(-1);
     }
 
     data.push_back(new_row);
