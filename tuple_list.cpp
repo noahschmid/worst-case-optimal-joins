@@ -35,6 +35,12 @@ TupleList::TupleList() {
     tail = head;
 }
 
+TupleList::TupleList(const Table &table) : TupleList() {
+    for (const std::vector<int> &row: table.data) {
+        this->append(new TupleListNode(row));
+    }
+}
+
 void TupleList::append(TupleListNode *node) {
     tail->next = node;
     while (tail->next != nullptr) {

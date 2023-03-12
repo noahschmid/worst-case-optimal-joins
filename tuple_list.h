@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <iostream>
+#include "table.h"
 
 // A TupleListNode is a node holding a tuple, or in other words holding a row in a relational table,
 // it also has a pointer to the next TupleListNode, so that all of them chained together form a linked list.
@@ -35,6 +36,9 @@ struct TupleList {
     TupleListNode *tail;
 
     TupleList();
+
+    // turn a table into a TupleList
+    TupleList(const Table &table);
 
     void append(TupleListNode *node);
 
