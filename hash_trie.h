@@ -2,34 +2,57 @@
 #define TEAM02_HASH_TRIE_H
 
 #include "tuple_list.h"
+#include <iostream>
 
-struct HashTrieTable;
+struct HashTrieNode;
 
-// Conceptually a HashTrieEntry is a pointer, either points to another hash table,
-// or a linked list of tuples if this entry is a leaf node.
+// Conceptually a HashTrieEntry is a pointer, either points to another HashTrieNode,
+// or a TupleList if this entry is a leaf node.
+// WARNING: they should only point to dynamically created variables, e.g. created via new.
 struct HashTrieEntry {
-    bool child_is_table;
+    bool points_to_tuple_list;
     union {
-        HashTrieTable *child_table;
-        TupleListNode *child_tuple_list_node;
+        HashTrieNode *hash_trie_node_ptr;
+        TupleList *tuple_list_ptr;
     };
 
-    // by default child_is_table is set to false
+    // by default it points to a TupleList
     HashTrieEntry();
+
+    ~HashTrieEntry();
+
+    // for debugging purposes
+    friend std::ostream &operator<<(std::ostream &os, const HashTrieEntry &entry);
+
+    friend std::ostream &print_with_indent(std::ostream &os, const HashTrieEntry &entry, int num_tabs);
 };
 
-struct HashTrieTable {
-    HashTrieEntry *data;
-    const int size;
+struct HashTrieNode {
+    HashTrieEntry *hash_table;
+    const unsigned long size;
+    HashTrieNode *parent;
 
-    explicit HashTrieTable(int allocated_size);
+    explicit HashTrieNode(unsigned long allocated_size, HashTrieNode *parent_arg = nullptr);
 
-    ~HashTrieTable();
+    ~HashTrieNode();
 
     // disable copy constructor, copy assignment operator
-    HashTrieTable(const HashTrieTable &) = delete;
+    HashTrieNode(const HashTrieNode &) = delete;
 
-    HashTrieTable &operator=(const HashTrieTable &) = delete;
+    HashTrieNode &operator=(const HashTrieNode &) = delete;
+
+    unsigned long hash(int attribute) const { return std::hash<int>()(attribute) % size; }
+
+    HashTrieEntry &look_up(int attribute) const { return hash_table[hash(attribute)]; }
+
+    void insert_tuple_at(TupleListNode *node, int index);
+
+    void insert_hash_trie_node_at(HashTrieNode *node, int index);
+
+    // for debugging purposes
+    friend std::ostream &operator<<(std::ostream &os, const HashTrieNode &node);
+
+    friend std::ostream &print_with_indent(std::ostream &os, const HashTrieNode &node, int num_tabs);
 };
 
 #endif //TEAM02_HASH_TRIE_H

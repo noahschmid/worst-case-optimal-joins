@@ -34,11 +34,11 @@ struct TupleList {
     TupleListNode *head;
     TupleListNode *tail;
 
-    TupleList(int tuple_size);
+    TupleList();
 
     void append(TupleListNode *node);
 
-    TupleListNode* pop_left();
+    TupleListNode *pop_left();
 
     ~TupleList();
 

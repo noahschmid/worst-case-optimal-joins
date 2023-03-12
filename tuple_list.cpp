@@ -30,8 +30,8 @@ std::ostream &operator<<(std::ostream &os, const TupleListNode &node) {
     return os;
 }
 
-TupleList::TupleList(int tuple_size) {
-    head = new TupleListNode(tuple_size);
+TupleList::TupleList() {
+    head = new TupleListNode(0);
     tail = head;
 }
 
@@ -69,6 +69,7 @@ std::ostream &operator<<(std::ostream &os, const TupleList &list) {
     }
     return os;
 }
+
 
 TupleListNode *TupleList::pop_left() {
     if (empty()) {
