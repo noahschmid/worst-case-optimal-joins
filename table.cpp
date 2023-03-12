@@ -27,7 +27,7 @@ Table::Table(const std::string &tsv_filename, int num_cols) : num_columns(num_co
 
 void Table::append_row(const std::vector<int> &new_row) {
     if (new_row.size() != num_columns) {
-        cerr<<("The new row is of a different size.");
+        cerr<<("The new row is of a different allocated_size.");
         exit(-1);
     }
 

@@ -5,6 +5,10 @@ g++ -std=c++17 <all the .cpp files> -o main
 # run
 ./main
 ```
+
+## how to get started
+read `main.cpp` as sample usage code.
+
 ## miscellaneous
 
 C++ is chosen as the source file type as we only have to
