@@ -1,5 +1,12 @@
 #include "tuple_list.h"
 
+TupleListNode::TupleListNode(TupleListNode *node): tuple_size(node->tuple_size) {
+    data = new int[tuple_size];
+    for(int i = 0; i < tuple_size; ++i)
+        data[i] = node->data[i];
+    next = node->next;
+}
+
 TupleListNode::TupleListNode(int tuple_size_arg, TupleListNode *nextNode) : tuple_size(tuple_size_arg),
                                                                             next(nextNode) {
     data = new int[tuple_size];
@@ -35,6 +42,20 @@ TupleList::TupleList() {
     tail = head;
 }
 
+TupleList::TupleList(const TupleList *list) {
+    TupleListNode *cursor = new TupleListNode(list->head);
+    
+    head = cursor;
+
+    while(cursor->next) {
+        TupleListNode *next = new TupleListNode(cursor->next);
+        cursor->next = next;
+        cursor = next;
+    }
+
+    tail = cursor;
+}
+
 TupleList::TupleList(const Table &table) : TupleList() {
     for (const std::vector<int> &row: table.data) {
         this->append(new TupleListNode(row));
@@ -59,9 +80,8 @@ TupleList::~TupleList() {
 }
 
 std::ostream &operator<<(std::ostream &os, const TupleList &list) {
-    os << "list: ";
     if (list.empty()) {
-        os << "empty";
+        os << "empty list";
         return os;
     }
 
@@ -69,7 +89,7 @@ std::ostream &operator<<(std::ostream &os, const TupleList &list) {
     while (curr != nullptr) {
         os << (*curr);
         if (curr->next != nullptr) {
-            os << " -> ";
+            os << ", ";
         }
         curr = curr->next;
     }
@@ -86,4 +106,15 @@ TupleListNode *TupleList::pop_left() {
     head->next = popped_node->next;
     popped_node->next = nullptr;
     return popped_node;
+}
+
+int TupleList::length() {
+    TupleListNode *cursor = head;
+    int length = 0;
+    while(cursor->next) {
+        length++;
+        cursor = cursor->next;
+    }
+
+    return length;
 }

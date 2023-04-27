@@ -12,6 +12,8 @@ struct TupleListNode {
     int *data;
     TupleListNode *next;
 
+    TupleListNode(TupleListNode *node);
+
     TupleListNode(int tuple_size_arg, TupleListNode *nextNode = nullptr);
 
     TupleListNode(const std::vector<int> &row, TupleListNode *nextNode = nullptr);
@@ -40,6 +42,8 @@ struct TupleList {
     // turn a table into a TupleList
     TupleList(const Table &table);
 
+    TupleList(const TupleList* list);
+
     void append(TupleListNode *node);
 
     TupleListNode *pop_left();
@@ -47,6 +51,8 @@ struct TupleList {
     ~TupleList();
 
     bool empty() const { return head->next == nullptr; }
+
+    int length();
 
     // for debugging purposes
     friend std::ostream &operator<<(std::ostream &os, const TupleList &list);

@@ -3,6 +3,7 @@
 
 #include "tuple_list.h"
 #include <iostream>
+#include <math.h>
 
 struct HashTrieNode;
 
@@ -44,21 +45,24 @@ struct HashTrieNode {
     // next entry to be inserted should always be put at tail->next
     HashTrieEntry *tail;
 
+    long hash;
 
     explicit HashTrieNode(unsigned long allocated_size_arg, HashTrieNode *parent_arg = nullptr);
 
     ~HashTrieNode();
 
-    unsigned long hash(int attribute) const { return std::hash<int>()(attribute) % allocated_size; }
+    unsigned long calc_hash(int attribute) const { return std::hash<int>()(attribute) % allocated_size; }
 
-    HashTrieEntry &look_up(int attribute) const { return hash_table[hash(attribute)]; }
+    HashTrieEntry &look_up(int attribute) const { return hash_table[calc_hash(attribute)]; }
 
-    void insert_tuple_at(TupleListNode *node, unsigned long index);
+    void insert_tuple_at(unsigned long index, TupleListNode *node);
 
     // it also sets the node->parent as this (the current hash trie node)
     void replace_with_hash_trie_node_at(HashTrieNode *node, unsigned long index);
 
     unsigned long size() const { return num_initialized_entries; }
+
+    static HashTrieNode* build(Table *table);
 
     // for debugging purposes
     friend std::ostream &operator<<(std::ostream &os, const HashTrieNode &node);
@@ -70,7 +74,29 @@ struct HashTrieNode {
 
     HashTrieNode &operator=(const HashTrieNode &) = delete;
 private:
+    static HashTrieEntry* build(int i, int len, TupleList *L);
     unsigned long num_initialized_entries;
 };
 
+class HashTrieIterator {
+public:
+    HashTrieIterator(HashTrieNode *node);
+
+    void up();
+    void down();
+    bool next();
+    bool lookup(long hash);
+    long get_hash() { return hash; };
+    int get_size() { return size; };
+    TupleList *get_tuples() { return tuples; };
+
+private:
+    TupleList *tuples;
+    HashTrieNode *cursor;
+    long hash;
+    int size;
+};
+
+
 #endif //TEAM02_HASH_TRIE_H
+
