@@ -62,7 +62,7 @@ struct HashTrieNode {
 
     unsigned long size() const { return num_initialized_entries; }
 
-    static HashTrieNode* build(Table *table);
+    static HashTrieNode* build(Table *table, std::vector<std::string> attributes);
 
     // for debugging purposes
     friend std::ostream &operator<<(std::ostream &os, const HashTrieNode &node);
@@ -74,7 +74,7 @@ struct HashTrieNode {
 
     HashTrieNode &operator=(const HashTrieNode &) = delete;
 private:
-    static HashTrieEntry* build(int i, int len, TupleList *L);
+    static HashTrieEntry* build(int i, int *indeces, int size, TupleList *L);
     unsigned long num_initialized_entries;
 };
 
@@ -90,9 +90,11 @@ public:
     int get_size() { return size; };
     TupleList *get_tuples() { return tuples; };
 
+    friend std::ostream &operator<<(std::ostream &os, const HashTrieIterator &it);
+    HashTrieNode *cursor;
 private:
     TupleList *tuples;
-    HashTrieNode *cursor;
+    
     long hash;
     int size;
 };

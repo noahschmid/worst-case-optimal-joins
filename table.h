@@ -5,23 +5,32 @@
 #include <vector>
 #include <iostream>
 
-struct Table {
+class Table {
 public:
-    const int num_columns;
-    std::vector<std::vector<int>> data;
+    std::vector<std::vector<int>> data; 
 
-    Table(const std::string &tsv_filename, int num_cols);
+    Table(const std::string &tsv_filename);
 
-    Table(int num_cols) : num_columns(num_cols), data() {}
+    Table(int num_cols) : num_attributes(num_cols), data() {}
 
     void append_row(const std::vector<int> &new_row);
 
-    int get_num_columns() const { return num_columns; }
+    int get_num_attributes() const { return num_attributes; }
+
+    std::string get_attribute_name(int i) { return attributes[i]; }
+
+    std::vector<std::string> get_attributes() { return attributes; };
+
+    bool contains_attribute(std::string name);
 
     int get_num_rows() const { return data.size(); }
 
     // for debugging purposes
     friend std::ostream &operator<<(std::ostream &os, const Table &table);
+
+private:
+    int num_attributes;
+    std::vector<std::string> attributes;
 };
 
 

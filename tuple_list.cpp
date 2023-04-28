@@ -81,11 +81,12 @@ TupleList::~TupleList() {
 
 std::ostream &operator<<(std::ostream &os, const TupleList &list) {
     if (list.empty()) {
-        os << "empty list";
+        os << "[]";
         return os;
     }
 
     TupleListNode *curr = list.head->next;
+    os << "[";
     while (curr != nullptr) {
         os << (*curr);
         if (curr->next != nullptr) {
@@ -93,6 +94,7 @@ std::ostream &operator<<(std::ostream &os, const TupleList &list) {
         }
         curr = curr->next;
     }
+    
     return os;
 }
 
