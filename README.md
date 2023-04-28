@@ -1,7 +1,7 @@
 ## how to compile and run
 ```shell
 # compile
-g++ -std=c++17 <all the .cpp files> -o main
+make
 # run
 ./main
 ```

@@ -46,6 +46,8 @@ struct TupleList {
 
     void append(TupleListNode *node);
 
+    void merge(TupleList *list);
+
     TupleListNode *pop_left();
 
     ~TupleList();

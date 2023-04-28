@@ -69,6 +69,11 @@ void TupleList::append(TupleListNode *node) {
     }
 }
 
+void TupleList::merge(TupleList *list) {
+    tail->next = list->head->next;
+    tail = list->tail;
+}
+
 TupleList::~TupleList() {
     TupleListNode *curr = head;
     TupleListNode *to_be_deleted;
@@ -94,6 +99,8 @@ std::ostream &operator<<(std::ostream &os, const TupleList &list) {
         }
         curr = curr->next;
     }
+
+    os << "]";
     
     return os;
 }

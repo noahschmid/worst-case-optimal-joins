@@ -18,6 +18,7 @@ private:
     HashTrieNode **hash_tries;
     HashTrieIterator **iterators;
     std::vector<std::string> attributes;
+    std::vector<TupleListNode*> results;
     int num_attributes;
 };
 

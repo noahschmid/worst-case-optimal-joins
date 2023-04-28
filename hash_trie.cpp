@@ -19,7 +19,7 @@ HashTrieEntry::~HashTrieEntry() {
 }
 
 std::ostream &operator<<(std::ostream &os, const HashTrieEntry &entry) {
-    /*if (entry.points_to_tuple_list) {
+    if (entry.points_to_tuple_list) {
         if (entry.tuple_list_ptr) {
             os << *(entry.tuple_list_ptr);
         } else {
@@ -31,16 +31,16 @@ std::ostream &operator<<(std::ostream &os, const HashTrieEntry &entry) {
         } else {
             os << "nil";
         }
-    }*/
+    }
     return os;
 }
 
 std::ostream & HashTrieEntry::print_with_indent(std::ostream &os, int num_tabs) const {
-    /*if (points_to_tuple_list) {
+    if (points_to_tuple_list) {
         if (tuple_list_ptr) {
             os << *tuple_list_ptr;
         } else {
-            os << "nil";
+            os << "[nil]";
         }
     } else {
         if (hash_trie_node_ptr) {
@@ -48,7 +48,7 @@ std::ostream & HashTrieEntry::print_with_indent(std::ostream &os, int num_tabs) 
         } else {
             os << "nil";
         }
-    }*/
+    }
     return os;
 }
 
@@ -124,7 +124,8 @@ std::ostream & HashTrieNode::print_with_indent(std::ostream &os, int num_tabs) c
 HashTrieEntry* HashTrieNode::build(int idx, int *indeces, int len, TupleList *L) {
     if(idx >= len) {
         HashTrieEntry *leaf = new HashTrieEntry();
-        leaf->tuple_list_ptr = L; // todo: make sure this address stays valid
+        leaf->points_to_tuple_list = true;
+        leaf->tuple_list_ptr = L;
         return leaf;
     }
 
@@ -149,9 +150,9 @@ HashTrieEntry* HashTrieNode::build(int idx, int *indeces, int len, TupleList *L)
         HashTrieEntry *M_next = build(idx, indeces, len, L_next);
 
         if(M_next->points_to_tuple_list) {
-            M->hash_table[i].tuple_list_ptr = M_next->tuple_list_ptr;
-            M->hash_table[i].hash_trie_node_ptr = nullptr;
             M->hash_table[i].points_to_tuple_list = true;
+            M->hash_table[i].hash_trie_node_ptr = nullptr;
+            M->hash_table[i].tuple_list_ptr = M_next->tuple_list_ptr;
         } else {
             M->hash_table[i].tuple_list_ptr = nullptr;
             M->hash_table[i].points_to_tuple_list = false;
@@ -217,7 +218,6 @@ void HashTrieIterator::up() {
 void HashTrieIterator::down() {
     if(cursor->hash_table[hash].points_to_tuple_list) {
         tuples = cursor->hash_table[hash].tuple_list_ptr;
-        std::cout << "reached some tuples\n";
     } else if(cursor->hash_table[hash].hash_trie_node_ptr){
         cursor = cursor->hash_table[hash].hash_trie_node_ptr;
         size = cursor->allocated_size;
@@ -225,7 +225,6 @@ void HashTrieIterator::down() {
 
         if(cursor->hash_table[hash].points_to_tuple_list) {
             tuples = cursor->hash_table[hash].tuple_list_ptr;
-            std::cout << "reached some tuples\n";
         }
     }
 }
@@ -236,7 +235,6 @@ bool HashTrieIterator::next() {
         if(cursor->hash_table[hash].hash_trie_node_ptr || cursor->hash_table[hash].tuple_list_ptr) {
             if(cursor->hash_table[hash].points_to_tuple_list) {
                 tuples = cursor->hash_table[hash].tuple_list_ptr;
-                std::cout << "reached some tuples\n";
                 return true;
             }
         }

@@ -31,8 +31,15 @@ JoinQuery::JoinQuery(Table **tables, int num_tables, std::vector<std::string> at
 }
 
 TupleList *JoinQuery::exec() {
+    results.clear();
     enumerate(0);
-    return new TupleList();
+
+
+    TupleList *list = new TupleList();
+    for(TupleListNode *node : results) {
+        list->append(node);
+    }
+    return list;
 }
 
 void JoinQuery::enumerate(int index) {
@@ -41,7 +48,7 @@ void JoinQuery::enumerate(int index) {
         std::vector<HashTrieIterator*> join;
         std::vector<HashTrieIterator*> other;
 
-        std::cout << "current attribute: " << attributes[index] << std::endl;
+       // std::cout << "current attribute: " << attributes[index] << std::endl;
 
         for(int i = 0; i < num_tables; ++i) {
             if(tables[i]->contains_attribute(attributes[index]))
@@ -88,9 +95,17 @@ void JoinQuery::enumerate(int index) {
     } else {
         for(int i = 0; i < num_tables; ++i) {
             iterators[i]->down();
+            //std::cout << "R" << i+1 << std::endl;
             if(iterators[i]->cursor->hash_table[iterators[i]->get_hash()].points_to_tuple_list) {
-                //if(iterators[i]->cursor->hash_table[iterators[i]->get_hash()].tuple_list_ptr->head)
-                 //   std::cout << *(iterators[i]->cursor->hash_table[iterators[i]->get_hash()].tuple_list_ptr) << std::endl;
+                if(iterators[i]->cursor->hash_table[iterators[i]->get_hash()].tuple_list_ptr) {
+                    //result->merge(iterators[i]->cursor->hash_table[iterators[i]->get_hash()].tuple_list_ptr);
+                    
+                    TupleList *list = iterators[i]->cursor->hash_table[iterators[i]->get_hash()].tuple_list_ptr;
+                    
+                    while(!list->empty())
+                        results.push_back(list->pop_left());
+                }
+                   //std::cout << *(iterators[i]->cursor->hash_table[iterators[i]->get_hash()].tuple_list_ptr) << std::endl;
             }
                 
             /*i
