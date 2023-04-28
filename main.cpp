@@ -14,7 +14,10 @@ int main(int argc, char **argv) {
     // The tables and attributes that we want to participate in the join query
     Table *tables[] = {R1, R2, R3};
     std::vector<std::string> attributes = {"v1", "v2", "v3"};
-    
+
+    // Use this to benchmark algorithm 2 in isolation for a single table
+    HashTrieNode *hash_trie = HashTrieNode::build(R1, attributes);
+
     // Executes algorithm 2 for each table
     JoinQuery query(tables, 3, attributes);
 
