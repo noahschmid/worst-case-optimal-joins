@@ -120,3 +120,32 @@ bool Table::contains_attribute(std::string attr) {
 
     return false;
 }
+
+int Table::get_attribute_idx(std::string name) {
+    for(int i = 0; i < attributes.size(); ++i) {
+        if(attributes[i].compare(name) == 0)
+            return i;
+    }
+
+    return -1;
+}
+
+Table *Table::select(std::vector<std::string> attributes) {
+    Table *table = new Table(name, attributes);
+    std::vector<int> idxs;
+
+    for(std::string a : attributes) {
+        int idx = get_attribute_idx(a);
+        if(idx != -1)
+            idxs.push_back(idx);
+    }
+
+    for(std::vector<int> row : data) {
+        std::vector<int> new_row;
+        for(int i : idxs)
+            new_row.push_back(row[i]);
+        table->append_row(new_row);
+    }
+
+    return table;
+}

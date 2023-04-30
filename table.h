@@ -21,11 +21,15 @@ public:
 
     std::string get_attribute_name(int i) { return attributes[i]; }
 
+    int get_attribute_idx(std::string name);
+
     std::vector<std::string> get_attributes() { return attributes; };
 
     bool contains_attribute(std::string name);
 
     int get_num_rows() const { return data.size(); }
+
+    Table *select(std::vector<std::string> attributes);
 
     // for debugging purposes
     friend std::ostream &operator<<(std::ostream &os, const Table &table);

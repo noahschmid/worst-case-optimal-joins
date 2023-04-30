@@ -3,29 +3,35 @@
 #include "tuple_list.h"
 #include "hash_trie.h"
 #include "query.h"
+#include "database.h"
+
 using namespace std;
 
 int main(int argc, char **argv) {
-    // Load the data (same as example in paper)
-    Table *R1 = new Table("./data/r1.tsv", "R1");
-    Table *R2 = new Table("./data/r2.tsv", "R2");
-    Table *R3 = new Table("./data/r3.tsv", "R3");
-    
-    // The tables and attributes that we want to participate in the join query
-    Table *tables[] = {R1, R2, R3};
-    std::vector<std::string> attributes = {"v1", "v2", "v3"};
+    // Initialize database
+    Database *db = new Database();
+    db->load_table("./data/r1.tsv", "R1");
+    db->load_table("./data/r2.tsv", "R2");
+    db->load_table("./data/r3.tsv", "R3");
 
-    // Print the individual tables
-    std::cout << *R1 << std::endl;
-    std::cout << *R2 << std::endl;
-    std::cout << *R3 << std::endl;
-
-    // Executes algorithm 2 for each table
-    JoinQuery query(tables, 3, attributes);
-
-    // Executes algorithm 3 and retrieves join query results
-    Table *result = query.exec();
+    // Executes algorithms 2 & 3 and retrieves join query results
+    Table *result = db->query("JOIN R1,R2,R3 ON v2,v3");
 
     // Print results
-    std::cout << *result << std::endl;
+    if(result)
+        std::cout << *result << std::endl;
+
+    // Executes algorithms 2 & 3 and retrieves join query results
+    result = db->query("JOIN R1,R2,R3 ON v1,v2,v3");
+
+    // Print results
+    if(result)
+        std::cout << *result << std::endl;
+
+    // Test select query
+    result = db->query("SELECT v1 FROM R1");
+    if(result)
+        std::cout << *result << std::endl;
+
+    delete db;
 }
