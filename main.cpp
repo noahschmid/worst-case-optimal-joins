@@ -7,22 +7,24 @@ using namespace std;
 
 int main(int argc, char **argv) {
     // Load the data (same as example in paper)
-    Table *R1 = new Table("./data/r1.tsv");
-    Table *R2 = new Table("./data/r2.tsv");
-    Table *R3 = new Table("./data/r3.tsv");
+    Table *R1 = new Table("./data/r1.tsv", "R1");
+    Table *R2 = new Table("./data/r2.tsv", "R2");
+    Table *R3 = new Table("./data/r3.tsv", "R3");
     
     // The tables and attributes that we want to participate in the join query
-    Table *tables[] = {R1, R2};
-    std::vector<std::string> attributes = {"v1", "v2"};
+    Table *tables[] = {R1, R2, R3};
+    std::vector<std::string> attributes = {"v1", "v2", "v3"};
 
-    // Use this to benchmark algorithm 2 in isolation for a single table
-    HashTrieNode *hash_trie = HashTrieNode::build(R1, attributes);
+    // Print the individual tables
+    std::cout << *R1 << std::endl;
+    std::cout << *R2 << std::endl;
+    std::cout << *R3 << std::endl;
 
     // Executes algorithm 2 for each table
-    JoinQuery query(tables, 2, attributes);
+    JoinQuery query(tables, 3, attributes);
 
     // Executes algorithm 3 and retrieves join query results
-    TupleList *result = query.exec();
+    Table *result = query.exec();
 
     // Print results
     std::cout << *result << std::endl;

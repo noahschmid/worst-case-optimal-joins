@@ -7,11 +7,13 @@
 
 class Table {
 public:
+    std::string name;
+
     std::vector<std::vector<int>> data; 
 
-    Table(const std::string &tsv_filename);
+    Table(const std::string &tsv_filename, std::string name);
 
-    Table(int num_cols) : num_attributes(num_cols), data() {}
+    Table(std::string name, std::vector<std::string> attributes) : name(name), attributes(attributes), num_attributes(attributes.size()) {}
 
     void append_row(const std::vector<int> &new_row);
 

@@ -1,18 +1,18 @@
 #include "tuple_list.h"
 
-TupleListNode::TupleListNode(TupleListNode *node): tuple_size(node->tuple_size) {
+Tuple::Tuple(Tuple *node): tuple_size(node->tuple_size) {
     data = new int[tuple_size];
     for(int i = 0; i < tuple_size; ++i)
         data[i] = node->data[i];
     next = node->next;
 }
 
-TupleListNode::TupleListNode(int tuple_size_arg, TupleListNode *nextNode) : tuple_size(tuple_size_arg),
+Tuple::Tuple(int tuple_size_arg, Tuple *nextNode) : tuple_size(tuple_size_arg),
                                                                             next(nextNode) {
     data = new int[tuple_size];
 }
 
-TupleListNode::TupleListNode(const std::vector<int> &row, TupleListNode *nextNode) : tuple_size(row.size()),
+Tuple::Tuple(const std::vector<int> &row, Tuple *nextNode) : tuple_size(row.size()),
                                                                                      next(nextNode) {
     data = new int[tuple_size];
     for (int i = 0; i < row.size(); i++) {
@@ -20,12 +20,12 @@ TupleListNode::TupleListNode(const std::vector<int> &row, TupleListNode *nextNod
     }
 }
 
-TupleListNode::~TupleListNode() {
+Tuple::~Tuple() {
     delete[] data;
     data = nullptr;
 }
 
-std::ostream &operator<<(std::ostream &os, const TupleListNode &node) {
+std::ostream &operator<<(std::ostream &os, const Tuple &node) {
     os << '(';
     for (int i = 0; i < node.tuple_size; i++) {
         os << node.data[i];
@@ -38,17 +38,17 @@ std::ostream &operator<<(std::ostream &os, const TupleListNode &node) {
 }
 
 TupleList::TupleList() {
-    head = new TupleListNode(0);
+    head = new Tuple(0);
     tail = head;
 }
 
 TupleList::TupleList(const TupleList *list) {
-    TupleListNode *cursor = new TupleListNode(list->head);
+    Tuple *cursor = new Tuple(list->head);
     
     head = cursor;
 
     while(cursor->next) {
-        TupleListNode *next = new TupleListNode(cursor->next);
+        Tuple *next = new Tuple(cursor->next);
         cursor->next = next;
         cursor = next;
     }
@@ -58,11 +58,11 @@ TupleList::TupleList(const TupleList *list) {
 
 TupleList::TupleList(const Table &table) : TupleList() {
     for (const std::vector<int> &row: table.data) {
-        this->append(new TupleListNode(row));
+        this->append(new Tuple(row));
     }
 }
 
-void TupleList::append(TupleListNode *node) {
+void TupleList::append(Tuple *node) {
     tail->next = node;
     while (tail->next != nullptr) {
         tail = tail->next;
@@ -75,8 +75,8 @@ void TupleList::merge(TupleList *list) {
 }
 
 TupleList::~TupleList() {
-    TupleListNode *curr = head;
-    TupleListNode *to_be_deleted;
+    Tuple *curr = head;
+    Tuple *to_be_deleted;
     while (curr != nullptr) {
         to_be_deleted = curr;
         curr = curr->next;
@@ -90,7 +90,7 @@ std::ostream &operator<<(std::ostream &os, const TupleList &list) {
         return os;
     }
 
-    TupleListNode *curr = list.head->next;
+    Tuple *curr = list.head->next;
     os << "[";
     while (curr != nullptr) {
         os << (*curr);
@@ -106,19 +106,19 @@ std::ostream &operator<<(std::ostream &os, const TupleList &list) {
 }
 
 
-TupleListNode *TupleList::pop_left() {
+Tuple *TupleList::pop_left() {
     if (empty()) {
         return nullptr;
     }
 
-    TupleListNode *popped_node = head->next;
+    Tuple *popped_node = head->next;
     head->next = popped_node->next;
     popped_node->next = nullptr;
     return popped_node;
 }
 
 int TupleList::length() {
-    TupleListNode *cursor = head;
+    Tuple *cursor = head;
     int length = 0;
     while(cursor->next) {
         length++;

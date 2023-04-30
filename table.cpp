@@ -5,7 +5,7 @@
 
 using namespace std;
 
-Table::Table(const std::string &tsv_filename) {
+Table::Table(const std::string &tsv_filename, std::string name) : name(name) {
     ifstream infile(tsv_filename);
     if (!infile.is_open()) {
         cerr<<("the file " + tsv_filename + " cannot be opened.");
@@ -51,17 +51,46 @@ void Table::append_row(const std::vector<int> &new_row) {
 }
 
 ostream &operator<<(ostream &os, const Table &table) {
+    os << "|";
+    for (int i = 0; i < table.get_num_attributes() - 1; ++i) {
+        os <<  "--------";
+    }
+
+    os << "-------|" << std::endl;
+
+
     os << "| ";
+
+    int space = (7*table.num_attributes - table.name.length())/2;
+    for(int i = 0; i < space; ++i)
+        os << " ";
+
+    os << table.name;
+
+    space = 8*table.num_attributes - 2 - space - table.name.length();
+
+    for(int i = 0; i < space; ++i)
+        os << " ";
+    
+    os << "|" << std::endl << "|";
+
+    for (int i = 0; i < table.get_num_attributes() - 1; ++i) {
+        os <<  "-------+";
+    }
+
+    os << "-------|" << std::endl << "| ";
+
     for (std::string attr : table.attributes) {
         os << attr << "\t| ";
     }
 
     os << endl << "|";
-    for (std::string attr : table.attributes) {
-        os <<  "-------|";
+    for (int i = 0; i < table.get_num_attributes() - 1; ++i) {
+        os <<  "-------+";
     }
-    os << endl;
-    os << "| ";
+
+    os << "-------|" << std::endl << "| ";
+
     for (int row_id = 0; row_id < table.data.size(); row_id++) {
         const vector<int> &row = table.data[row_id];
         for (int col_id = 0; col_id < table.num_attributes; col_id++) {
@@ -73,6 +102,13 @@ ostream &operator<<(ostream &os, const Table &table) {
             os << "| ";
         }
     }
+
+    os << std::endl << "|";
+    for (int i = 0; i < table.get_num_attributes() - 1; ++i) {
+        os <<  "-------+";
+    }
+
+    os << "-------|" << std::endl;
     return os;
 }
 
