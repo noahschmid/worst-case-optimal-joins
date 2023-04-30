@@ -45,7 +45,7 @@ struct HashTrieNode {
     // next entry to be inserted should always be put at tail->next
     HashTrieEntry *tail;
 
-    long hash;
+    long parent_hash;
 
     explicit HashTrieNode(unsigned long allocated_size_arg, HashTrieNode *parent_arg = nullptr);
 
@@ -55,7 +55,7 @@ struct HashTrieNode {
 
     HashTrieEntry &look_up(int attribute) const { return hash_table[calc_hash(attribute)]; }
 
-    void insert_tuple_at(unsigned long index, TupleListNode *node);
+    void insert_tuple_at(unsigned long index, Tuple *node);
 
     // it also sets the node->parent as this (the current hash trie node)
     void replace_with_hash_trie_node_at(HashTrieNode *node, unsigned long index);
@@ -80,7 +80,7 @@ private:
 
 class HashTrieIterator {
 public:
-    HashTrieIterator(HashTrieNode *node);
+    HashTrieIterator(HashTrieNode *node, std::string name);
 
     void up();
     void down();
@@ -92,11 +92,13 @@ public:
 
     friend std::ostream &operator<<(std::ostream &os, const HashTrieIterator &it);
     HashTrieNode *cursor;
+    std::string name;
 private:
     TupleList *tuples;
     
     long hash;
-    int size;
+    long previous_hash;
+    int size;  
 };
 
 

@@ -5,28 +5,28 @@
 #include <iostream>
 #include "table.h"
 
-// A TupleListNode is a node holding a tuple, or in other words holding a row in a relational table,
-// it also has a pointer to the next TupleListNode, so that all of them chained together form a linked list.
-struct TupleListNode {
+// A Tuple is a node holding a tuple, or in other words holding a row in a relational table,
+// it also has a pointer to the next Tuple, so that all of them chained together form a linked list.
+struct Tuple {
     const int tuple_size;
     int *data;
-    TupleListNode *next;
+    Tuple *next;
 
-    TupleListNode(TupleListNode *node);
+    Tuple(Tuple *node);
 
-    TupleListNode(int tuple_size_arg, TupleListNode *nextNode = nullptr);
+    Tuple(int tuple_size_arg, Tuple *nextNode = nullptr);
 
-    TupleListNode(const std::vector<int> &row, TupleListNode *nextNode = nullptr);
+    Tuple(const std::vector<int> &row, Tuple *nextNode = nullptr);
 
-    ~TupleListNode();
+    ~Tuple();
 
     // for debugging purposes
-    friend std::ostream &operator<<(std::ostream &os, const TupleListNode &node);
+    friend std::ostream &operator<<(std::ostream &os, const Tuple &node);
 
     // disable copy constructor and copy assignment operator
-    TupleListNode(const TupleListNode &) = delete;
+    Tuple(const Tuple &) = delete;
 
-    TupleListNode &operator=(const TupleListNode &) = delete;
+    Tuple &operator=(const Tuple &) = delete;
 };
 
 // Head itself does not store data but points to the first element.
@@ -34,8 +34,8 @@ struct TupleListNode {
 // The next node to be inserted should always be at tail->next.
 // WARNING: all nodes in the tuple list should be dynamically created, i.e. via new.
 struct TupleList {
-    TupleListNode *head;
-    TupleListNode *tail;
+    Tuple *head;
+    Tuple *tail;
 
     TupleList();
 
@@ -44,11 +44,11 @@ struct TupleList {
 
     TupleList(const TupleList* list);
 
-    void append(TupleListNode *node);
+    void append(Tuple *node);
 
     void merge(TupleList *list);
 
-    TupleListNode *pop_left();
+    Tuple *pop_left();
 
     ~TupleList();
 
