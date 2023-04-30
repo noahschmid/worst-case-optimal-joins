@@ -1,6 +1,10 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include <windows.h>
+
+#ifdef _WIN32
+    #include <windows.h>
+#endif
+
 #ifdef __x86_64__
     #include "tsc_x86.h"
 #endif
