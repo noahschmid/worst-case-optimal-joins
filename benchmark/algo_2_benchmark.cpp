@@ -11,9 +11,9 @@
 #include "../query.h"
 using namespace std;
 
-//#define CALIBRATE
+#define CALIBRATE
 #define NUM_RUNS 5
-#define CYCLES_REQUIRED 1e8
+#define CYCLES_REQUIRED 1e10
 #define FREQUENCY 2.3e9
 
 double rdtsc(Table* table, std::vector<std::string> attributes) {
@@ -32,7 +32,7 @@ double rdtsc(Table* table, std::vector<std::string> attributes) {
     while(num_runs < (1 << 14)) {
         start = start_tsc();
         for (i = 0; i < num_runs; ++i) {
-            compute(A, B, n);
+            HashTrieNode *hash_trie = HashTrieNode::build(table, attributes);
         }
         cycles = stop_tsc(start);
 
@@ -51,6 +51,37 @@ double rdtsc(Table* table, std::vector<std::string> attributes) {
     return (double) cycles;
 }
 
+double c_clock(Table* table, std::vector<std::string> attributes) {
+    int i, num_runs;
+    double cycles;
+    clock_t start, end;
+
+    num_runs = NUM_RUNS;
+#ifdef CALIBRATE
+    while(num_runs < (1 << 14)) {
+        start = clock();
+        for (i = 0; i < num_runs; ++i) {
+            HashTrieNode::build(table, attributes);
+        }
+        end = clock();
+
+        cycles = (double)(end-start);
+
+        // Same as in c_clock: CYCLES_REQUIRED should be expressed accordingly to the order of magnitude of CLOCKS_PER_SEC
+        if(cycles >= CYCLES_REQUIRED/(FREQUENCY/CLOCKS_PER_SEC)) break;
+
+        num_runs *= 2;
+    }
+#endif
+    start = clock();
+    for(i=0; i<num_runs; ++i) { 
+        HashTrieNode::build(table, attributes);
+    }
+    end = clock();
+
+    return (double)(end-start)/num_runs;
+}
+
 
 int main(int argc, char **argv) {
     Table* table;
@@ -65,7 +96,7 @@ int main(int argc, char **argv) {
         }
         
 
-        table = new Table(num_columns);
+        table = new Table("bench_table", attributes);
 
         for(int i=0;i<num_rows;i++){
             std::vector<int> vec;
@@ -76,7 +107,7 @@ int main(int argc, char **argv) {
         }
     }
     else if(argc == 2){
-        table = new Table(argv[1]);
+        table = new Table(argv[1], "bench_table");
         attributes = table->get_attributes();
         printf("%d\n", table->get_num_rows());
     }
@@ -85,7 +116,9 @@ int main(int argc, char **argv) {
 
     printf("starting benchmark...\n");
     double r = rdtsc(table, attributes);
+    double c = c_clock(table, attributes);
     printf("benchmark finished\n");
     printf("RDTSC instruction:\n %lf cycles measured => %lf seconds, assuming frequency is %lf MHz. (change in source file if different)\n\n", r, r/(FREQUENCY), (FREQUENCY)/1e6);
+    printf("C clock() function:\n %lf cycles measured. On some systems, this number seems to be actually computed from a timer in seconds then transformed into clock ticks using the variable CLOCKS_PER_SEC. Unfortunately, it appears that CLOCKS_PER_SEC is sometimes set improperly. (According to this variable, your computer should be running at %lf MHz). In any case, dividing by this value should give a correct timing: %lf seconds. \n\n",c, (double) CLOCKS_PER_SEC/1e6, c/CLOCKS_PER_SEC);
     return 0;
 }
