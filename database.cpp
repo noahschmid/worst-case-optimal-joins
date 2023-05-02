@@ -23,7 +23,7 @@ Table *Database::query(std::string query_string) {
         getline(s, attributes_string, ' ');
 
         if(tmp.compare("ON"))
-            std::cout << "invalid query\n";
+            std::cout << "SiQL error: invalid query\n";
 
         std::stringstream s1(table_names);
 
@@ -36,7 +36,7 @@ Table *Database::query(std::string query_string) {
         }
 
         if(join_tables.size() == 0) {
-            std::cout << "table not found\n";
+            std::cout << "SiQL error: table not found\n";
             return nullptr;
         }
         
@@ -62,7 +62,7 @@ Table *Database::query(std::string query_string) {
         getline(s, table_name, ' ');
 
         if(tmp.compare("FROM")){
-            std::cout << "invalid query\n";
+            std::cout << "SiQL error: invalid query\n";
             return nullptr;
         }
 
@@ -75,7 +75,7 @@ Table *Database::query(std::string query_string) {
         }
 
         if(target == nullptr) {
-            std::cout << "table not found\n";
+            std::cout << "SiQL error: table '" << table_name << "' not found\n";
             return nullptr;
         }
 

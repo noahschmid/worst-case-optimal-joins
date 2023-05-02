@@ -133,7 +133,7 @@ HashTrieEntry* HashTrieNode::build(int idx, int *indeces, int len, TupleList *L)
     }
 
     long size = pow(2, ceil(1.25f*L->length()));
-    HashTrieNode *M = new HashTrieNode(4);
+    HashTrieNode *M = new HashTrieNode(size);
     
     while(!L->empty()) {
         Tuple *t = L->pop_left();
