@@ -120,3 +120,16 @@ bool Table::contains_attribute(std::string attr) {
 
     return false;
 }
+
+bool Table::equals(Table *other) {
+    if(other->data.size() != data.size() || other->data[0].size() != data.size())
+
+    for(int i = 0; i < other->data.size(); ++i) {
+        for(int j = 0; j < other->data[i].size(); ++i) {
+            if(other->data[i][j] != data[i][j])
+                return false;
+        }
+    }
+
+    return true;
+}

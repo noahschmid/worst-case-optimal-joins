@@ -10,6 +10,7 @@ int main(int argc, char **argv) {
     Table *R1 = new Table("./data/r1.tsv", "R1");
     Table *R2 = new Table("./data/r2.tsv", "R2");
     Table *R3 = new Table("./data/r3.tsv", "R3");
+    Table *expected_result = new Table("./data/expected.tsv", "R3");
     
     // The tables and attributes that we want to participate in the join query
     Table *tables[] = {R1, R2, R3};
@@ -28,4 +29,10 @@ int main(int argc, char **argv) {
 
     // Print results
     std::cout << *result << std::endl;
+
+    if(result->equals(expected_result)) {
+        std::cout << "Result correct.\n";
+    } else {
+        std::cout << "Wrong result.\n";
+    }
 }
