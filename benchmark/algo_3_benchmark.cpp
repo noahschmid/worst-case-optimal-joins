@@ -1,6 +1,10 @@
 #include <stdlib.h>
 #include <stdio.h>
+
+#ifdef _WIN32
 #include <windows.h>
+#endif
+
 #ifdef __x86_64__
     #include "tsc_x86.h"
 #endif
@@ -14,7 +18,7 @@ using namespace std;
 #define CALIBRATE
 #define NUM_RUNS 5
 #define CYCLES_REQUIRED 1e10
-#define FREQUENCY 2.3e9
+#define FREQUENCY 2.8e9
 
 double rdtsc(JoinQuery* query) {
     int i, num_runs;
@@ -87,7 +91,7 @@ double c_clock(JoinQuery* query) {
 
 int main(int argc, char **argv) {
     if(argc <= 1){
-        printf("usage: <NUM_TABLES> <PATH_TO_TABLE_1> ... <PATH_TO_TABLE_n> \n"); return -1;
+        printf("usage: <NUM_TABLES> <PATH_TO_TABLE_1> ... <PATH_TO_TABLE_n> <COL_TO_JOIN_1> ... <COL_TO_JOIN_N>\n"); return -1;
     }
     int num_tables = atoi(argv[1]);
     Table* tables[argc-1];
