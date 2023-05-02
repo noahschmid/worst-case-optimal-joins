@@ -30,6 +30,7 @@ public:
     int get_num_rows() const { return data.size(); }
 
     Table *select(std::vector<std::string> attributes);
+    bool equals(Table *other);
 
     // for debugging purposes
     friend std::ostream &operator<<(std::ostream &os, const Table &table);

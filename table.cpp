@@ -149,3 +149,16 @@ Table *Table::select(std::vector<std::string> attributes) {
 
     return table;
 }
+
+bool Table::equals(Table *other) {
+    if(other->data.size() != data.size() || other->data[0].size() != data.size())
+
+    for(int i = 0; i < other->data.size(); ++i) {
+        for(int j = 0; j < other->data[i].size(); ++i) {
+            if(other->data[i][j] != data[i][j])
+                return false;
+        }
+    }
+
+    return true;
+}

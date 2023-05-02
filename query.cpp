@@ -123,7 +123,7 @@ void JoinQuery::enumerate(int index) {
         std::cout << std::endl;
         #endif
 
-        JoinedTupleBuilder builder(tables, num_tables, results->get_num_attributes());
+        JoinedTupleBuilder builder(tables, num_tables, attributes);
 
         for(int i = 0; i < num_tables; ++i) { 
             if(iterators[i]->cursor->hash_table[iterators[i]->get_hash()].points_to_tuple_list) {
@@ -153,14 +153,18 @@ void JoinedTupleBuilder::add_tuple(int table_idx, Tuple *tuple) {
     }
 
     if(data.size() == 0) {
-        std::vector<int> r(num_attributes, 0);
+        std::vector<int> r(total_attributes, 0);
         data.push_back(r);
     }
 
     for(int i = 0; i < data.size(); ++i) {
         int tuple_len = tuple->tuple_size;
+        int idx = 0;
         for(int j = 0; j < tuple_len; ++j) {
-            data[i][j + start_idx[table_idx]] = tuple->data[j];
+            if(pick_attr[table_idx][j]) {
+                data[i][idx + start_idx[table_idx]] = tuple->data[j];
+                idx++;
+            }
         }
     }
 }
