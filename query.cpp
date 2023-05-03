@@ -26,11 +26,14 @@ JoinQuery::JoinQuery(Table **tables, int num_tables, std::vector<std::string> jo
         std::cout << *hash_tries[i] << std::endl;
         #endif
     }
-
-    results = new Table("Join Result", all_attributes);
 }
 
 Table *JoinQuery::exec() {
+    if(results) {
+        delete results;
+        results = nullptr;
+    }
+
     enumerate(0);
 
     return results;
@@ -135,10 +138,55 @@ void JoinQuery::enumerate(int index) {
                 }
             }
         }
-        
+
         std::vector<std::vector<int>> r = builder.build();
+
+        if(!results)
+            results = new Table("Join Result", builder.get_attributes());
+
         for(std::vector<int> row : r)
             results->append_row(row);
+    }
+}
+
+JoinedTupleBuilder::JoinedTupleBuilder(Table **tables, int num_tables, std::vector<std::string> join_attributes) : num_tables(num_tables), tables(tables), join_attributes(join_attributes) {
+    occupied = (bool*)calloc(num_tables, sizeof(bool));
+    bool attribute_taken[join_attributes.size()] = {false};
+    start_idx = (int*)malloc(sizeof(int)*num_tables);
+    start_idx[0] = 0;
+
+    total_attributes = 0;
+
+    for(int i = 0; i < num_tables; ++i) {
+        int num_attr = 0;
+        std::vector<bool> pick;
+        for(int j = 0; j < tables[i]->get_num_attributes(); ++j) {
+            bool include = true;
+            for(int k = 0; k < join_attributes.size(); ++k) {
+                if(!tables[i]->get_attributes()[j].compare(join_attributes[k])) {
+                    if(attribute_taken[k]) {
+                        include = false;
+                        break;
+                    } 
+                    attribute_taken[k] = true;
+                }
+            }
+
+            if(include) {
+                pick.push_back(true);
+                attributes.push_back(tables[i]->get_attributes()[j]);
+                num_attr++;
+            } else {
+                pick.push_back(false);
+            }
+        }
+
+        pick_attr.push_back(pick); 
+
+        total_attributes += num_attr;
+
+        if(i < num_tables - 1)
+            start_idx[i+1] = start_idx[i] + num_attr;
     }
 }
 
