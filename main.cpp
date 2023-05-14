@@ -15,21 +15,9 @@ int main(int argc, char **argv) {
     db->load_table("./data/r3.tsv", "R3");
 
     // Executes algorithms 2 & 3 and retrieves join query results
-    Table *result = db->query("JOIN R1,R2,R3 ON v2,v3");
+    Table *result = db->query("JOIN R1,R2,R3 ON v1,v2,v3");
 
     // Print results
-    if(result)
-        std::cout << *result << std::endl;
-
-    // Executes algorithms 2 & 3 and retrieves join query results
-    result = db->query("JOIN R1,R2,R3 ON v1,v2,v3");
-
-    // Print results
-    if(result)
-        std::cout << *result << std::endl;
-
-    // Test select query
-    result = db->query("SELECT v1 FROM R1");
     if(result)
         std::cout << *result << std::endl;
 

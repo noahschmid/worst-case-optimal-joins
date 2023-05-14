@@ -12,10 +12,14 @@ struct HashTrieNode;
 // WARNING: they should only point to dynamically created variables, e.g. created via new.
 struct HashTrieEntry {
     bool points_to_tuple_list;
+
+    uint64_t hash;
+
     union {
         HashTrieNode *hash_trie_node_ptr;
         TupleList *tuple_list_ptr;
     };
+    
     // the initialized entry in each HashTrieNode are chained via `next` to facilitate enumeration
     HashTrieEntry *next;
 
@@ -46,12 +50,13 @@ struct HashTrieNode {
     HashTrieEntry *tail;
 
     long parent_hash;
+    int shift;
 
-    explicit HashTrieNode(unsigned long allocated_size_arg, HashTrieNode *parent_arg = nullptr);
+    explicit HashTrieNode(unsigned long allocated_size_arg, int shift, HashTrieNode *parent_arg = nullptr);
 
     ~HashTrieNode();
 
-    unsigned long calc_hash(int attribute) const { return std::hash<int>()(attribute) % allocated_size; }
+    unsigned long calc_hash(int attribute) const { return std::hash<uint64_t>()(attribute); }
 
     HashTrieEntry &look_up(int attribute) const { return hash_table[calc_hash(attribute)]; }
 
@@ -85,7 +90,7 @@ public:
     void up();
     void down();
     bool next();
-    bool lookup(long hash);
+    bool lookup(uint64_t hash);
     long get_hash() { return hash; };
     int get_size() { return size; };
     TupleList *get_tuples() { return tuples; };
@@ -96,11 +101,11 @@ public:
 private:
     TupleList *tuples;
     
-    long hash;
-    long previous_hash;
+    uint64_t hash;
+    int previous_bucket;
+    int bucket;
     int size;  
 };
 
 
 #endif //TEAM02_HASH_TRIE_H
-

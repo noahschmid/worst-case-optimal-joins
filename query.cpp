@@ -93,6 +93,7 @@ void JoinQuery::enumerate(int index) {
                 if(!join[j]->lookup(join[i_scan]->get_hash())) {
                     #ifdef DEBUG
                     std::cout << " - not found\n";
+                    std::cout << *join[j] << std::endl;
                     #endif
 
                     goto next;
