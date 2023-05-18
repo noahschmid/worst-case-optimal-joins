@@ -49,7 +49,6 @@ struct HashTrieNode {
     // next entry to be inserted should always be put at tail->next
     HashTrieEntry *tail;
 
-    long parent_hash;
     int shift;
 
     explicit HashTrieNode(unsigned long allocated_size_arg, int shift, HashTrieNode *parent_arg = nullptr);
@@ -79,7 +78,7 @@ struct HashTrieNode {
 
     HashTrieNode &operator=(const HashTrieNode &) = delete;
 private:
-    static HashTrieEntry* build(int i, int *indeces, int size, TupleList *L);
+    static HashTrieEntry* build(int i, int *indices, int size, TupleList *L);
     unsigned long num_initialized_entries;
 };
 

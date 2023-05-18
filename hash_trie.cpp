@@ -60,7 +60,6 @@ HashTrieNode::HashTrieNode(unsigned long allocated_size_arg, int shift, HashTrie
     hash_table = new HashTrieEntry[allocated_size_arg];
     head = new HashTrieEntry();
     tail = head;
-    parent_hash = 0;
 }
 
 HashTrieNode::~HashTrieNode() {
@@ -137,7 +136,7 @@ std::ostream & HashTrieNode::print_with_indent(std::ostream &os, int num_tabs) c
     return os;
 }
 
-HashTrieEntry* HashTrieNode::build(int idx, int *indeces, int len, TupleList *L) {
+HashTrieEntry* HashTrieNode::build(int idx, int *indices, int len, TupleList *L) {
     if(idx >= len) {
         HashTrieEntry *leaf = new HashTrieEntry();
         leaf->points_to_tuple_list = true;
@@ -151,7 +150,7 @@ HashTrieEntry* HashTrieNode::build(int idx, int *indeces, int len, TupleList *L)
     
     while(!L->empty()) {
         Tuple *t = L->pop_left();
-        M->insert_tuple_at(M->calc_hash(t->data[indeces[idx]]), t);
+        M->insert_tuple_at(M->calc_hash(t->data[indices[idx]]), t);
     }
 
     ++idx;
@@ -161,9 +160,8 @@ HashTrieEntry* HashTrieNode::build(int idx, int *indeces, int len, TupleList *L)
 
         if(M->hash_table[i].tuple_list_ptr->empty())
             continue;
-        
-        TupleList *L_next = new TupleList(M->hash_table[i].tuple_list_ptr);
-        HashTrieEntry *M_next = build(idx, indeces, len, L_next);
+
+        HashTrieEntry *M_next = build(idx, indices, len, M->hash_table[i].tuple_list_ptr);
 
         if(M_next->points_to_tuple_list) {
             M->hash_table[i].points_to_tuple_list = true;
@@ -174,7 +172,6 @@ HashTrieEntry* HashTrieNode::build(int idx, int *indeces, int len, TupleList *L)
             M->hash_table[i].points_to_tuple_list = false;
             M->hash_table[i].hash_trie_node_ptr = M_next->hash_trie_node_ptr;
             M->hash_table[i].hash_trie_node_ptr->parent = M;
-            M->hash_table[i].hash_trie_node_ptr->parent_hash = i;
         }
 
         free(M_next);
@@ -187,13 +184,13 @@ HashTrieEntry* HashTrieNode::build(int idx, int *indeces, int len, TupleList *L)
 }
 
 HashTrieNode* HashTrieNode::build(const Table *table, const std::vector<std::string>& attributes) {
-    std::vector<int> indeces;
+    std::vector<int> indices;
 
-    for(std::string s1 : attributes) {
+    for(const std::string& s1 : attributes) {
         int i = 0;
-        for(std::string s2 : table->get_attributes()) {
+        for(const std::string& s2 : table->get_attributes()) {
             if(!s1.compare(s2)) {
-                indeces.push_back(i);
+                indices.push_back(i);
                 break;
             }
             ++i;
@@ -201,7 +198,9 @@ HashTrieNode* HashTrieNode::build(const Table *table, const std::vector<std::str
     }
 
     TupleList *L = new TupleList(*table);
-    HashTrieEntry *head = build(0, indeces.data(), indeces.size(), L);
+    HashTrieEntry *head = build(0, indices.data(), indices.size(), L);
+    // build will move all the tuples from L to the hash trie. So we can delete L now.
+    delete L;
     HashTrieNode *node = head->hash_trie_node_ptr;
     free(head);
     return node;
