@@ -302,7 +302,7 @@ bool HashTrieIterator::lookup(uint64_t hash) {
             index = (index+1)%cursor->allocated_size;
             if(cursor->hash_table[index].hash == hash || !cursor->hash_table[index].hash_trie_node_ptr) {
                 bucket = index;
-                hash = cursor->hash_table[bucket].hash;
+                hash = cursor->hash_table[bucket].hash; // TODO: Sometimes hash nullpointer
                 return true;
             }
         } while(start != index && cursor->hash_table[index].hash != hash);
