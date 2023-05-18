@@ -1,12 +1,11 @@
 #include "database.h"
 #include <sstream>
 
-void Database::load_table(std::string filename, std::string name) {
-    Table *table = new Table(filename, name);
-    tables.push_back(table);
+void Database::load_table(const std::string & filename, const std::string & name) {
+    tables.push_back(Table(filename, name));
 }
 
-Table *Database::query(std::string query_string) {
+Table *Database::query(const std::string& query_string) {
     std::stringstream s(query_string);
     std::string tmp;
     getline(s, tmp, ' ');
@@ -16,7 +15,7 @@ Table *Database::query(std::string query_string) {
         std::string attributes_string;
 
         std::vector<std::string> attributes;
-        std::vector<Table*> join_tables;
+        std::vector<const Table*> join_tables;
 
         getline(s, table_names, ' ');
         getline(s, tmp, ' ');
@@ -28,9 +27,9 @@ Table *Database::query(std::string query_string) {
         std::stringstream s1(table_names);
 
         while(getline(s1, tmp, ',')) {
-            for(Table *t : tables) {
-                if(t->name.compare(tmp) == 0) {
-                    join_tables.push_back(t);
+            for(const Table & t: tables) {
+                if(t.name.compare(tmp) == 0) {
+                    join_tables.push_back(&t);
                 }
             }
         }
@@ -45,11 +44,9 @@ Table *Database::query(std::string query_string) {
         while(getline(s2, tmp, ',')) {
             attributes.push_back(tmp);
         }
+        JoinQuery query = JoinQuery(join_tables.data(), join_tables.size(), attributes);
+        Table *result = query.exec();
 
-        JoinQuery *query = new JoinQuery(join_tables.data(), join_tables.size(), attributes);
-        Table *result = query->exec();
-
-        delete query;
         return result;
 
     } else if(!tmp.compare("SELECT")) {
@@ -66,10 +63,10 @@ Table *Database::query(std::string query_string) {
             return nullptr;
         }
 
-        Table *target = nullptr;
-        for(Table *t : tables) {
-            if(!t->name.compare(table_name)) {
-                target = t;
+        const Table *target = nullptr;
+        for(const Table & t : tables) {
+            if(!t.name.compare(table_name)) {
+                target = &t;
                 break;
             }
         }

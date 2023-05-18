@@ -1,10 +1,11 @@
 #include "query.h"
 
-JoinQuery::JoinQuery(Table **tables, int num_tables, std::vector<std::string> join_attributes) : num_tables(num_tables) {
+JoinQuery::JoinQuery(const Table **tables, int num_tables, const std::vector<std::string>& join_attributes) : num_tables(num_tables) {
     this->tables = tables;
-    
+    results = nullptr;
     hash_tries = (HashTrieNode**)malloc(num_tables*sizeof(HashTrieNode*));
     iterators = (HashTrieIterator**)malloc(num_tables*sizeof(HashTrieIterator*));
+    // TODO: optimize this copy statement
     this->attributes = join_attributes;
     int total_attributes = 0;
 
@@ -28,8 +29,18 @@ JoinQuery::JoinQuery(Table **tables, int num_tables, std::vector<std::string> jo
     }
 }
 
+JoinQuery::~JoinQuery() {
+    for(int i = 0; i < num_tables; ++i) {
+        delete iterators[i];
+        delete hash_tries[i];
+    }
+
+    free(hash_tries);
+    free(iterators);
+}
+
 Table *JoinQuery::exec() {
-    if(results) {
+    if(results != nullptr) {
         delete results;
         results = nullptr;
     }
@@ -145,14 +156,15 @@ void JoinQuery::enumerate(int index) {
         if(!results)
             results = new Table("Join Result", builder.get_attributes());
 
-        for(std::vector<int> row : r)
+        for(std::vector<int> row : r) {
             results->append_row(row);
+        }
     }
 }
 
-JoinedTupleBuilder::JoinedTupleBuilder(Table **tables, int num_tables, std::vector<std::string> join_attributes) : num_tables(num_tables), tables(tables), join_attributes(join_attributes) {
+JoinedTupleBuilder::JoinedTupleBuilder(const Table **tables, int num_tables, const std::vector<std::string> & join_attributes) : num_tables(num_tables), tables(tables), join_attributes(join_attributes) {
     occupied = (bool*)calloc(num_tables, sizeof(bool));
-    bool attribute_taken[join_attributes.size()] = {false};
+    std::vector<bool> attribute_taken = std::vector<bool>(join_attributes.size(), false);
     start_idx = (int*)malloc(sizeof(int)*num_tables);
     start_idx[0] = 0;
 

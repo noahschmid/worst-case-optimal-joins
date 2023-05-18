@@ -186,7 +186,7 @@ HashTrieEntry* HashTrieNode::build(int idx, int *indeces, int len, TupleList *L)
     return entry;
 }
 
-HashTrieNode* HashTrieNode::build(Table *table, std::vector<std::string> attributes) {
+HashTrieNode* HashTrieNode::build(const Table *table, const std::vector<std::string>& attributes) {
     std::vector<int> indeces;
 
     for(std::string s1 : attributes) {
@@ -206,6 +206,7 @@ HashTrieNode* HashTrieNode::build(Table *table, std::vector<std::string> attribu
     free(head);
     return node;
 }
+
 
 HashTrieIterator::HashTrieIterator(HashTrieNode *node, std::string name) : name(name) {
     bucket = 0;

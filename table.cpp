@@ -112,8 +112,8 @@ ostream &operator<<(ostream &os, const Table &table) {
     return os;
 }
 
-bool Table::contains_attribute(std::string attr) {
-    for(std::string a : attributes) {
+bool Table::contains_attribute(const std::string& attr) const {
+    for(const std::string& a : attributes) {
         if(a.compare(attr) == 0)
             return true;
     }
@@ -121,7 +121,7 @@ bool Table::contains_attribute(std::string attr) {
     return false;
 }
 
-int Table::get_attribute_idx(std::string name) {
+int Table::get_attribute_idx(const std::string & name) const {
     for(int i = 0; i < attributes.size(); ++i) {
         if(attributes[i].compare(name) == 0)
             return i;
@@ -130,11 +130,11 @@ int Table::get_attribute_idx(std::string name) {
     return -1;
 }
 
-Table *Table::select(std::vector<std::string> attributes) {
+Table *Table::select(const std::vector<std::string>& attributes) const {
     Table *table = new Table(name, attributes);
     std::vector<int> idxs;
 
-    for(std::string a : attributes) {
+    for(const std::string& a : attributes) {
         int idx = get_attribute_idx(a);
         if(idx != -1)
             idxs.push_back(idx);
@@ -151,14 +151,13 @@ Table *Table::select(std::vector<std::string> attributes) {
 }
 
 bool Table::equals(Table *other) {
-    if(other->data.size() != data.size() || other->data[0].size() != data.size())
-
-    for(int i = 0; i < other->data.size(); ++i) {
-        for(int j = 0; j < other->data[i].size(); ++i) {
-            if(other->data[i][j] != data[i][j])
-                return false;
+    if(other->data.size() != data.size() || other->data[0].size() != data.size()) {
+        for(int i = 0; i < other->data.size(); ++i) {
+            for(int j = 0; j < other->data[i].size(); ++i) {
+                if(other->data[i][j] != data[i][j])
+                    return false;
+            }
         }
     }
-
     return true;
 }

@@ -60,14 +60,14 @@ struct HashTrieNode {
 
     HashTrieEntry &look_up(int attribute) const { return hash_table[calc_hash(attribute)]; }
 
-    void insert_tuple_at(unsigned long index, Tuple *node);
+    void insert_tuple_at(uint64_t hash, Tuple *node);
 
     // it also sets the node->parent as this (the current hash trie node)
     void replace_with_hash_trie_node_at(HashTrieNode *node, unsigned long index);
 
     unsigned long size() const { return num_initialized_entries; }
 
-    static HashTrieNode* build(Table *table, std::vector<std::string> attributes);
+    static HashTrieNode* build(const Table *table, const std::vector<std::string>& attributes);
 
     // for debugging purposes
     friend std::ostream &operator<<(std::ostream &os, const HashTrieNode &node);

@@ -21,15 +21,15 @@ public:
 
     std::string get_attribute_name(int i) { return attributes[i]; }
 
-    int get_attribute_idx(std::string name);
+    int get_attribute_idx(const std::string& name) const;
 
-    std::vector<std::string> get_attributes() { return attributes; };
+    std::vector<std::string> get_attributes() const { return attributes; };
 
-    bool contains_attribute(std::string name);
+    bool contains_attribute(const std::string& name) const;
 
     int get_num_rows() const { return data.size(); }
 
-    Table *select(std::vector<std::string> attributes);
+    Table *select(const std::vector<std::string>& attributes) const;
     bool equals(Table *other);
 
     // for debugging purposes
