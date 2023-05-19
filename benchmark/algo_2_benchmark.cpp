@@ -18,7 +18,7 @@ using namespace std;
 
 #define CALIBRATE
 #define NUM_RUNS 5
-#define CYCLES_REQUIRED 1e10
+#define CYCLES_REQUIRED 1e7
 #define FREQUENCY 2.3e9
 
 double rdtsc(Table *table, std::vector<std::string> attributes) {
