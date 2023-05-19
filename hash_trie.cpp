@@ -201,7 +201,7 @@ HashTrieNode* HashTrieNode::build(const Table *table, const std::vector<std::str
     // build will move all the tuples from L to the hash trie. So we can delete L now.
     delete L;
     HashTrieNode *node = head->hash_trie_node_ptr;
-    free(head);
+    free(head); // valgrind warning: mismatched free() 
     return node;
 }
 

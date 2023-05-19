@@ -1,5 +1,5 @@
 #include "query.h"
-#define DEBUG 1
+//#define DEBUG 1
 
 JoinQuery::JoinQuery(const Table **tables, int num_tables, const std::vector<std::string>& join_attributes) : num_tables(num_tables) {
     this->tables = tables;

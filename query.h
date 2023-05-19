@@ -30,6 +30,7 @@ public:
 
     ~JoinedTupleBuilder() {
         free(occupied);
+        free(start_idx);
     }
 
     void add_tuple(int table_idx, Tuple *tuple);

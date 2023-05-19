@@ -18,5 +18,6 @@ int main(int argc, char **argv) {
     if(result)
         std::cout << *result << std::endl;
 
+    delete result;
     delete db;
 }
