@@ -153,7 +153,7 @@ void JoinQuery::enumerate(int index) {
         JoinedTupleBuilder builder(tables, num_tables, attributes);
 
         for(int i = 0; i < num_tables; ++i) { 
-            if(iterators[i]->cursor->hash_table[iterators[i]->lookup(iterators[i]->get_hash())].points_to_tuple_list) {
+            if(iterators[i]->cursor->hash_table[iterators[i]->cursor->shift].points_to_tuple_list) {
                 if(iterators[i]->get_tuples()) {
                     TupleList *list = new TupleList(iterators[i]->get_tuples());
                     
