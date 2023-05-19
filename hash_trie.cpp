@@ -136,7 +136,7 @@ std::ostream & HashTrieNode::print_with_indent(std::ostream &os, int num_tabs) c
     return os;
 }
 
-HashTrieEntry* HashTrieNode::build(int idx, int *indices, int len, TupleList *L) {
+HashTrieEntry* HashTrieNode::build(int idx, const int *indices, int len, TupleList *L) {
     if(idx >= len) {
         HashTrieEntry *leaf = new HashTrieEntry();
         leaf->points_to_tuple_list = true;
@@ -145,7 +145,7 @@ HashTrieEntry* HashTrieNode::build(int idx, int *indices, int len, TupleList *L)
     }
 
     int p = ceil(log2(1.25f*L->length()));
-    long size = pow(2, p);
+    unsigned long size = pow(2, p);
     HashTrieNode *M = new HashTrieNode(size, p);
     
     while(!L->empty()) {
@@ -154,27 +154,26 @@ HashTrieEntry* HashTrieNode::build(int idx, int *indices, int len, TupleList *L)
     }
 
     ++idx;
-    for(int i = 0; i < M->allocated_size; ++i) {
-        if(!M->hash_table[i].tuple_list_ptr)
-            continue;
+    HashTrieEntry *curr = M->head;
+    while (curr->next) {
+        curr = curr->next;
+        HashTrieEntry *M_next = build(idx, indices, len, curr->tuple_list_ptr);
 
-        if(M->hash_table[i].tuple_list_ptr->empty())
-            continue;
-
-        HashTrieEntry *M_next = build(idx, indices, len, M->hash_table[i].tuple_list_ptr);
 
         if(M_next->points_to_tuple_list) {
-            M->hash_table[i].points_to_tuple_list = true;
-            M->hash_table[i].hash_trie_node_ptr = nullptr;
-            M->hash_table[i].tuple_list_ptr = M_next->tuple_list_ptr;
+            curr->points_to_tuple_list = true;
+            curr->hash_trie_node_ptr = nullptr;
+            curr->tuple_list_ptr = M_next->tuple_list_ptr;
+            M_next->tuple_list_ptr = nullptr;
         } else {
-            M->hash_table[i].tuple_list_ptr = nullptr;
-            M->hash_table[i].points_to_tuple_list = false;
-            M->hash_table[i].hash_trie_node_ptr = M_next->hash_trie_node_ptr;
-            M->hash_table[i].hash_trie_node_ptr->parent = M;
+            curr->tuple_list_ptr = nullptr;
+            curr->points_to_tuple_list = false;
+            curr->hash_trie_node_ptr = M_next->hash_trie_node_ptr;
+            curr->hash_trie_node_ptr->parent = M;
+            M_next->hash_trie_node_ptr = nullptr;
         }
 
-        free(M_next);
+        delete M_next;
     }
 
     HashTrieEntry *entry = new HashTrieEntry();
@@ -207,87 +206,54 @@ HashTrieNode* HashTrieNode::build(const Table *table, const std::vector<std::str
 }
 
 
-HashTrieIterator::HashTrieIterator(HashTrieNode *node, std::string name) : name(name) {
-    bucket = 0;
-    hash = 0;
-    size = node->size();
+HashTrieIterator::HashTrieIterator(HashTrieNode *node, std::string name) : name(std::move(name)) {
+    entry = node->head->next;
+    prev_entries = std::stack<HashTrieEntry *>();
+
     cursor = node;
     tuples = nullptr;
-
-    while(bucket < cursor->allocated_size) {
-        if(cursor->hash_table[bucket].hash_trie_node_ptr || cursor->hash_table[bucket].tuple_list_ptr)
-            break;
-        ++hash;
-    }
-
-    if(cursor->hash_table[bucket].points_to_tuple_list)
-        tuples = cursor->hash_table[bucket].tuple_list_ptr;
-
-    hash = cursor->hash_table[bucket].hash;
 }
 
 void HashTrieIterator::up() {
     if(!cursor->parent)
         return;
 
-    if(tuples) {
+    if (tuples) {
         tuples = nullptr;
     } else {
-        bucket = previous_bucket;
+
+        entry = prev_entries.top();
+        prev_entries.pop();
         cursor = cursor->parent;
-        hash = cursor->hash_table[bucket].hash;
-        size = cursor->size();
     }
 }
 
 void HashTrieIterator::down() {
-    if(cursor->hash_table[bucket].points_to_tuple_list) {
-        tuples = cursor->hash_table[bucket].tuple_list_ptr;
-        size = tuples->length();
-    } else if(cursor->hash_table[bucket].hash_trie_node_ptr){
-        previous_bucket = bucket;
-        cursor = cursor->hash_table[bucket].hash_trie_node_ptr;
-        size = cursor->size();
-        bucket = 0;
-        
-        while(bucket < cursor->allocated_size) {
-            if(cursor->hash_table[bucket].hash_trie_node_ptr)
-                break;
-            ++bucket;
-        }
-
-        hash = cursor->hash_table[bucket].hash;
+    if(entry->points_to_tuple_list) {
+        tuples = entry->tuple_list_ptr;
+        return;
+    } else {
+        prev_entries.push(entry);
+        cursor = entry->hash_trie_node_ptr;
+        entry = cursor->head->next;
     }
 }
 
 bool HashTrieIterator::next() {
-    int old = bucket;
-    ++bucket;
-    while(bucket < size) {
-        if(cursor->hash_table[bucket].hash_trie_node_ptr) {
-            if(cursor->hash_table[bucket].points_to_tuple_list) {
-                tuples = cursor->hash_table[bucket].tuple_list_ptr;
-            }
-
-            hash = cursor->hash_table[bucket].hash;
-            return true;
-        }
-
-        ++bucket;
+    if(!entry->next) {
+        return false;
+    } else {
+        entry = entry->next;
+        return true;
     }
-
-    bucket = old;
-    hash = cursor->hash_table[bucket].hash;
-    return false;
 }
 
 bool HashTrieIterator::lookup(uint64_t hash) {
-    //std::cout << " lu[" << bucket%cursor->allocated_size%modulus << "]: " << cursor->hash_table[bucket%cursor->allocated_size%modulus].hash_trie_node_ptr << " " << cursor->hash_table[bucket%cursor->allocated_size].tuple_list_ptr;
 
     int index = hash >> cursor->shift;
 
     // if there is no entry at that index, item is definitely not in hash table
-    if(!cursor->hash_table[index].hash_trie_node_ptr) {
+    if(!cursor->hash_table[index].isInitialized()) {
         std::cout << "no entry at index " << index << std::endl;
         return false;
     }
@@ -299,25 +265,21 @@ bool HashTrieIterator::lookup(uint64_t hash) {
 
         do {
             index = (index+1)%cursor->allocated_size;
-            if(cursor->hash_table[index].hash == hash || !cursor->hash_table[index].hash_trie_node_ptr) {
-                bucket = index;
-                hash = cursor->hash_table[bucket].hash;
+            if(cursor->hash_table[index].hash == hash && cursor->hash_table[index].isInitialized()) {
+                entry = &cursor->hash_table[index];
                 return true;
             }
-        } while(start != index && cursor->hash_table[index].hash != hash);
+        } while(start != index);
 
         return false;
     }
 
     // else everything worked, there was a matching entry at index
-    bucket = index;
-    hash = cursor->hash_table[bucket].hash;
-
+    entry = &cursor->hash_table[index];
     return true;
 }
 
 std::ostream &operator<<(std::ostream &os, const HashTrieIterator &it) {
-    os << "bucket: " << it.bucket << endl;
-
-    return it.cursor->hash_table[it.bucket].print_with_indent(os, 1);
+    os << *(it.entry);
+    return os;
 }

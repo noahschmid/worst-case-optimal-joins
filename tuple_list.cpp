@@ -42,6 +42,7 @@ TupleList::TupleList() {
     tail = head;
 }
 
+// TODO: this essentially should not be needed, or we should make a full deep copy
 TupleList::TupleList(const TupleList *list) {
     Tuple *cursor = new Tuple(list->head);
     

@@ -17,7 +17,7 @@ JoinQuery::JoinQuery(const Table **tables, int num_tables, const std::vector<std
         hash_tries[i] = HashTrieNode::build(this->tables[i], attributes);
         iterators[i] = new HashTrieIterator(hash_tries[i], this->tables[i]->name);
 
-        for(std::string a : tables[i]->get_attributes())
+        for(const std::string& a : tables[i]->get_attributes())
             all_attributes.push_back(a);
 
         total_attributes += tables[i]->get_num_attributes();
@@ -116,13 +116,25 @@ void JoinQuery::enumerate(int index) {
             }
 
             for(int j = 0; j < join.size(); ++j) {
+                # ifdef DEBUG
+                std::cout<< "descend "<<join[j]->name<<" from "<<join[j]->get_hash();
+                #endif
                 join[j]->down();
+                # ifdef DEBUG
+                std::cout<< " to "<<join[j]->get_hash()<<std::endl;
+                #endif
             }
 
             enumerate(index+1);
 
             for(int j = 0; j < join.size(); ++j) {
+                # ifdef DEBUG
+                std::cout<< "ascend "<<join[j]->name<<" from "<<join[j]->get_hash();
+                #endif
                 join[j]->up();
+                # ifdef DEBUG
+                std::cout<< " to "<<join[j]->get_hash()<<std::endl;
+                #endif
             }
             
             next:
@@ -156,7 +168,14 @@ void JoinQuery::enumerate(int index) {
         if(!results)
             results = new Table("Join Result", builder.get_attributes());
 
-        for(std::vector<int> row : r) {
+        for(const std::vector<int>& row : r) {
+            # ifdef DEBUG
+            std::cout << "[*] appending row: ";
+            for(int i = 0; i < row.size(); ++i) {
+                std::cout << row[i] << ", ";
+            }
+            std::cout<< std::endl;
+            # endif
             results->append_row(row);
         }
     }

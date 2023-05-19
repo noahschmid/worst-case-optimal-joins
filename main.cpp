@@ -1,8 +1,5 @@
 #include <iostream>
 #include "table.h"
-#include "tuple_list.h"
-#include "hash_trie.h"
-#include "query.h"
 #include "database.h"
 
 using namespace std;

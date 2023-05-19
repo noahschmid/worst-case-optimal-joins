@@ -4,6 +4,7 @@
 #include "tuple_list.h"
 #include <iostream>
 #include <math.h>
+#include <stack>
 
 struct HashTrieNode;
 
@@ -19,6 +20,11 @@ struct HashTrieEntry {
         HashTrieNode *hash_trie_node_ptr;
         TupleList *tuple_list_ptr;
     };
+
+    bool isInitialized() const {
+        if (points_to_tuple_list) { return tuple_list_ptr != nullptr; }
+        else { return hash_trie_node_ptr != nullptr; }
+    }
     
     // the initialized entry in each HashTrieNode are chained via `next` to facilitate enumeration
     HashTrieEntry *next;
@@ -78,7 +84,7 @@ struct HashTrieNode {
 
     HashTrieNode &operator=(const HashTrieNode &) = delete;
 private:
-    static HashTrieEntry* build(int i, int *indices, int size, TupleList *L);
+    static HashTrieEntry* build(int i, const int *indices, int size, TupleList *L);
     unsigned long num_initialized_entries;
 };
 
@@ -90,8 +96,8 @@ public:
     void down();
     bool next();
     bool lookup(uint64_t hash);
-    long get_hash() { return hash; };
-    int get_size() { return size; };
+    unsigned long get_hash() { return entry->hash; };
+    unsigned long get_size() { return cursor->size(); };
     TupleList *get_tuples() { return tuples; };
 
     friend std::ostream &operator<<(std::ostream &os, const HashTrieIterator &it);
@@ -99,11 +105,9 @@ public:
     std::string name;
 private:
     TupleList *tuples;
-    
-    uint64_t hash;
-    int previous_bucket;
-    int bucket;
-    int size;  
+
+    HashTrieEntry *entry;
+    std::stack<HashTrieEntry *> prev_entries;
 };
 
 
