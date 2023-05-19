@@ -19,7 +19,7 @@ private:
     HashTrieIterator **iterators;
     std::vector<std::string> attributes;
     // TODO: check memory leak here
-    Table *results;
+    Table *results = nullptr;
     int num_attributes;
 };
 
