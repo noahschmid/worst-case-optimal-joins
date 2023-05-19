@@ -1,4 +1,5 @@
 #include "query.h"
+#define DEBUG 1
 
 JoinQuery::JoinQuery(const Table **tables, int num_tables, const std::vector<std::string>& join_attributes) : num_tables(num_tables) {
     this->tables = tables;
@@ -153,14 +154,13 @@ void JoinQuery::enumerate(int index) {
         JoinedTupleBuilder builder(tables, num_tables, attributes);
 
         for(int i = 0; i < num_tables; ++i) { 
-            if(iterators[i]->cursor->hash_table[iterators[i]->cursor->shift].points_to_tuple_list) {
                 if(iterators[i]->get_tuples()) {
                     TupleList *list = new TupleList(iterators[i]->get_tuples());
                     
                     while(!list->empty())
                         builder.add_tuple(i, list->pop_left());
                 }
-            }
+            
         }
 
         std::vector<std::vector<int>> r = builder.build();
