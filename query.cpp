@@ -162,10 +162,13 @@ void JoinQuery::enumerate(int index) {
 
         for(int i = 0; i < num_tables; ++i) { 
                 if(iterators[i]->get_tuples()) {
-                    TupleList *list = new TupleList(iterators[i]->get_tuples());
                     builder.duplicate(iterators[i]->get_tuples()->length()-1);
-                    while(!list->empty())
-                        builder.add_tuple(i, list->pop_left());
+
+                    const Tuple * curr_tuple = iterators[i]->get_tuples()->head->next;
+                    while(curr_tuple) {
+                        builder.add_tuple(i, curr_tuple);
+                        curr_tuple = curr_tuple->next;
+                    }
                 }   
         }
 
@@ -240,7 +243,7 @@ void JoinedTupleBuilder::duplicate(int n) {
     }
 }
 
-void JoinedTupleBuilder::add_tuple(int table_idx, Tuple *tuple) {
+void JoinedTupleBuilder::add_tuple(int table_idx, const Tuple *tuple) {
     if(table_idx == 0) {
         std::vector<int> r(total_attributes, 0);
         data.push_back(r);

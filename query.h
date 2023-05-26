@@ -34,7 +34,7 @@ public:
     }
 
     void duplicate(int n);
-    void add_tuple(int table_idx, Tuple *tuple);
+    void add_tuple(int table_idx, const Tuple *tuple);
     std::vector<std::vector<int>> build();
 
     std::vector<std::string> get_attributes() { return attributes; }

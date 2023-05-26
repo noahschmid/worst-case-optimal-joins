@@ -84,7 +84,7 @@ struct HashTrieNode {
 
     HashTrieNode &operator=(const HashTrieNode &) = delete;
 private:
-    static HashTrieEntry* build(int i, const int *indices, int size, TupleList *L);
+    static HashTrieNode* build(int i, const int *indices, int size, TupleList *L);
     unsigned long num_initialized_entries = 0;
 };
 

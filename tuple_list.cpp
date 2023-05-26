@@ -42,20 +42,6 @@ TupleList::TupleList() {
     tail = head;
 }
 
-// TODO: this essentially should not be needed, or we should make a full deep copy
-TupleList::TupleList(const TupleList *list) {
-    Tuple *cursor = new Tuple(list->head);
-    
-    head = cursor;
-
-    while(cursor->next) {
-        Tuple *next = new Tuple(cursor->next);
-        cursor->next = next;
-        cursor = next;
-    }
-
-    tail = cursor;
-}
 
 TupleList::TupleList(const Table &table) : TupleList() {
     for (const std::vector<int> &row: table.data) {

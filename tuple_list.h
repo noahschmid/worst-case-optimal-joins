@@ -42,8 +42,6 @@ struct TupleList {
     // turn a table into a TupleList
     TupleList(const Table &table);
 
-    TupleList(const TupleList* list);
-
     void append(Tuple *node);
 
     void merge(TupleList *list);
