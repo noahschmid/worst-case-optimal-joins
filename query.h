@@ -29,7 +29,6 @@ public:
     JoinedTupleBuilder(const Table **tables, int num_tables, const std::vector<std::string> & join_attributes);
 
     ~JoinedTupleBuilder() {
-        free(occupied);
         free(start_idx_h);
         free(start_idx_v);
     }
@@ -46,7 +45,6 @@ private:
     int *start_idx_h; // horizontal start index
     std::vector<std::vector<bool>> pick_attr;
     std::vector<std::vector<int>> data;
-    bool *occupied;
     std::vector<std::string> join_attributes;
     std::vector<std::string> attributes;
     int num_tables;

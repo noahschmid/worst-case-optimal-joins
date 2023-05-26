@@ -188,7 +188,6 @@ void JoinQuery::enumerate(int index) {
 }
 
 JoinedTupleBuilder::JoinedTupleBuilder(const Table **tables, int num_tables, const std::vector<std::string> & join_attributes) : num_tables(num_tables), tables(tables), join_attributes(join_attributes) {
-    occupied = (bool*)calloc(num_tables, sizeof(bool));
     std::vector<bool> attribute_taken = std::vector<bool>(join_attributes.size(), false);
     start_idx_h = (int*)malloc(sizeof(int)*num_tables);
     start_idx_v = (int*)malloc(sizeof(int)*num_tables);
@@ -252,7 +251,8 @@ void JoinedTupleBuilder::add_tuple(int table_idx, Tuple *tuple) {
     if(table_idx == 0) // if it's the first table we feed tuples in strides of one
         to++;
     else {
-        to += start_idx_v[table_idx-1];
+        from *= start_idx_v[table_idx-1];
+        to = from + start_idx_v[table_idx-1];
     }
 
     for(int i = from; i < to; ++i) {
@@ -267,6 +267,17 @@ void JoinedTupleBuilder::add_tuple(int table_idx, Tuple *tuple) {
     }
 
     start_idx_v[table_idx]++;
+
+    #ifdef DEBUG
+    std::cout << "..." << std::endl;
+    std::cout << *tuple << std::endl;
+    for(int i = 0; i < data.size(); ++i) {
+        for(int j = 0; j < data[i].size(); ++j) {
+            std::cout << data[i][j] << " ";
+        }
+        std::cout << std::endl;
+    }
+    #endif
 
 }
 

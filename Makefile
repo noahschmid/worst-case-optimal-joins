@@ -2,6 +2,8 @@ SRC_FILES_MAIN = $(filter-out test.cpp, $(wildcard *.cpp))
 SRC_FILES_TEST = $(filter-out main.cpp, $(wildcard *.cpp))
 SRC_FILES_BM = $(filter-out main.cpp test.cpp, $(wildcard *.cpp))
 
+.PHONY: all run test
+
 all:
 	g++ -O3 -std=c++17 $(SRC_FILES_MAIN) -o main
 
@@ -10,6 +12,7 @@ run:
 	./main
 
 test:
+	rm test
 	g++ -O3 -std=c++17 $(SRC_FILES_TEST) -o test
 	./test
 
