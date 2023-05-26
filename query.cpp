@@ -59,7 +59,7 @@ void JoinQuery::enumerate(int index) {
             std::cout << tables[i]->name << " " << iterators[i]->get_hash() << ", ";
         }
         std::cout << std::endl;
-        std::cout << "[" << attributes[index] << "] joining ";
+        std::cout << "[" << attributes[index] << "]: joining ";
         #endif
 
         std::vector<HashTrieIterator*> join;
@@ -76,6 +76,17 @@ void JoinQuery::enumerate(int index) {
         int min = 0x7fffffff;
         int i_scan = 0;
 
+        #ifdef DEBUG
+        std::cout << std::endl;
+        #endif
+
+        if(join.size() == 0) {
+            #ifdef DEBUG
+            std::cout << "[" << attributes[index] << "]: no tables to join" << std::endl;
+            #endif
+            return;
+        }
+
         if(join.size() > 1) {
             for(int i = 0; i < join.size(); ++i) {
                 if(join[i]->get_size() < min) {
@@ -85,13 +96,9 @@ void JoinQuery::enumerate(int index) {
             }
         }
 
-        #ifdef DEBUG
-        std::cout << std::endl;
-        #endif
-
         do {
             #ifdef DEBUG
-            std::cout << "[" << attributes[index] << "] lead " << join[i_scan]->name << std::endl;
+            std::cout << "[" << attributes[index] << "]: lead " << join[i_scan]->name << std::endl;
             #endif
 
             for(int j = 0; j < join.size(); ++j) {
@@ -99,7 +106,7 @@ void JoinQuery::enumerate(int index) {
                     continue;
 
                 #ifdef DEBUG
-                std::cout << "[" << attributes[index] << "] looking for " <<  join[i_scan]->get_hash() << " in " << join[j]->name;
+                std::cout << "[" << attributes[index] << "]: looking for " <<  join[i_scan]->get_hash() << " in " << join[j]->name;
                 #endif
 
                 if(!join[j]->lookup(join[i_scan]->get_hash())) {
@@ -118,7 +125,7 @@ void JoinQuery::enumerate(int index) {
 
             for(int j = 0; j < join.size(); ++j) {
                 # ifdef DEBUG
-                std::cout<< "descend "<<join[j]->name<<" from "<<join[j]->get_hash();
+                std::cout<< "[" << attributes[index] << "]: descend "<<join[j]->name<<" from "<<join[j]->get_hash();
                 #endif
                 join[j]->down();
                 # ifdef DEBUG
@@ -130,7 +137,7 @@ void JoinQuery::enumerate(int index) {
 
             for(int j = 0; j < join.size(); ++j) {
                 # ifdef DEBUG
-                std::cout<< "ascend "<<join[j]->name<<" from "<<join[j]->get_hash();
+                std::cout<< "[" << attributes[index] << "]: ascend "<<join[j]->name<<" from "<<join[j]->get_hash();
                 #endif
                 join[j]->up();
                 # ifdef DEBUG
@@ -156,11 +163,10 @@ void JoinQuery::enumerate(int index) {
         for(int i = 0; i < num_tables; ++i) { 
                 if(iterators[i]->get_tuples()) {
                     TupleList *list = new TupleList(iterators[i]->get_tuples());
-                    
+                    builder.duplicate(iterators[i]->get_tuples()->length()-1);
                     while(!list->empty())
                         builder.add_tuple(i, list->pop_left());
-                }
-            
+                }   
         }
 
         std::vector<std::vector<int>> r = builder.build();
@@ -184,12 +190,14 @@ void JoinQuery::enumerate(int index) {
 JoinedTupleBuilder::JoinedTupleBuilder(const Table **tables, int num_tables, const std::vector<std::string> & join_attributes) : num_tables(num_tables), tables(tables), join_attributes(join_attributes) {
     occupied = (bool*)calloc(num_tables, sizeof(bool));
     std::vector<bool> attribute_taken = std::vector<bool>(join_attributes.size(), false);
-    start_idx = (int*)malloc(sizeof(int)*num_tables);
-    start_idx[0] = 0;
+    start_idx_h = (int*)malloc(sizeof(int)*num_tables);
+    start_idx_v = (int*)malloc(sizeof(int)*num_tables);
+    start_idx_h[0] = 0;
 
     total_attributes = 0;
 
     for(int i = 0; i < num_tables; ++i) {
+        start_idx_v[i] = 0;
         int num_attr = 0;
         std::vector<bool> pick;
         for(int j = 0; j < tables[i]->get_num_attributes(); ++j) {
@@ -218,35 +226,48 @@ JoinedTupleBuilder::JoinedTupleBuilder(const Table **tables, int num_tables, con
         total_attributes += num_attr;
 
         if(i < num_tables - 1)
-            start_idx[i+1] = start_idx[i] + num_attr;
+            start_idx_h[i+1] = start_idx_h[i] + num_attr;
+    }
+}
+
+/* duplicate all entries in the table n times */
+void JoinedTupleBuilder::duplicate(int n) {
+    int len = data.size();
+
+    for(int j = 0; j < n; ++j) {
+        for(int i = 0; i < len; ++i) {
+            data.push_back(data[i]);
+        }
     }
 }
 
 void JoinedTupleBuilder::add_tuple(int table_idx, Tuple *tuple) {
-    if(occupied[table_idx]) {
-        int len = data.size();
-        for(int i = 0; i < len; ++i) {
-            data.push_back(data[i]);
-        }
-    } else {
-        occupied[table_idx] = true;
-    }
-
-    if(data.size() == 0) {
+    if(table_idx == 0) {
         std::vector<int> r(total_attributes, 0);
         data.push_back(r);
     }
 
-    for(int i = 0; i < data.size(); ++i) {
+    int from = start_idx_v[table_idx];
+    int to = from;
+    if(table_idx == 0) // if it's the first table we feed tuples in strides of one
+        to++;
+    else {
+        to += start_idx_v[table_idx-1];
+    }
+
+    for(int i = from; i < to; ++i) {
         int tuple_len = tuple->tuple_size;
         int idx = 0;
         for(int j = 0; j < tuple_len; ++j) {
             if(pick_attr[table_idx][j]) {
-                data[i][idx + start_idx[table_idx]] = tuple->data[j];
+                data[i][idx + start_idx_h[table_idx]] = tuple->data[j];
                 idx++;
             }
         }
     }
+
+    start_idx_v[table_idx]++;
+
 }
 
 std::vector<std::vector<int>> JoinedTupleBuilder::build() {

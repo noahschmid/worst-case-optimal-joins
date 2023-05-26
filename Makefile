@@ -3,7 +3,7 @@ SRC_FILES_TEST = $(filter-out main.cpp, $(wildcard *.cpp))
 SRC_FILES_BM = $(filter-out main.cpp test.cpp, $(wildcard *.cpp))
 
 all:
-	g++ -O3 -g -std=c++17 $(SRC_FILES_MAIN) -o main
+	g++ -O3 -std=c++17 $(SRC_FILES_MAIN) -o main
 
 run:
 	g++ -O3 -std=c++17 $(SRC_FILES_MAIN) -o main
@@ -12,6 +12,9 @@ run:
 test:
 	g++ -O3 -std=c++17 $(SRC_FILES_TEST) -o test
 	./test
+
+debug:
+	g++ -O0 -g -std=c++17 $(SRC_FILES_MAIN) -o main
 
 bm_alg_2:
 	g++ -std=c++17 $(SRC_FILES_BM) benchmark/algo_2_benchmark.cpp -o bm2.exe -O2

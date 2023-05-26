@@ -30,9 +30,11 @@ public:
 
     ~JoinedTupleBuilder() {
         free(occupied);
-        free(start_idx);
+        free(start_idx_h);
+        free(start_idx_v);
     }
 
+    void duplicate(int n);
     void add_tuple(int table_idx, Tuple *tuple);
     std::vector<std::vector<int>> build();
 
@@ -40,7 +42,8 @@ public:
 
 private:
     const Table **tables;
-    int *start_idx;
+    int *start_idx_v; // vertical start index
+    int *start_idx_h; // horizontal start index
     std::vector<std::vector<bool>> pick_attr;
     std::vector<std::vector<int>> data;
     bool *occupied;
