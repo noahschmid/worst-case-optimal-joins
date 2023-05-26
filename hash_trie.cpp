@@ -159,7 +159,6 @@ HashTrieEntry* HashTrieNode::build(int idx, const int *indices, int len, TupleLi
         curr = curr->next;
         HashTrieEntry *M_next = build(idx, indices, len, curr->tuple_list_ptr);
 
-
         if(M_next->points_to_tuple_list) {
             curr->points_to_tuple_list = true;
             curr->hash_trie_node_ptr = nullptr;
@@ -201,7 +200,8 @@ HashTrieNode* HashTrieNode::build(const Table *table, const std::vector<std::str
     // build will move all the tuples from L to the hash trie. So we can delete L now.
     delete L;
     HashTrieNode *node = head->hash_trie_node_ptr;
-    free(head); // valgrind warning: mismatched free() 
+    if(head)
+        free(head); // valgrind warning: mismatched free() 
     return node;
 }
 
