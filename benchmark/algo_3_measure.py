@@ -19,25 +19,25 @@ def main():
     
     list_of_commands = [("2 ./data/imdb_data/title_basics.tsv ./data/imdb_data/title_crew.tsv tconst"),
                     ("2 ./data/imdb_data/title_basics.tsv ./data/imdb_data/title_episode.tsv tconst"),
-                    ("2 ./data/imdb_data/title_basics.tsv ./data/imdb_data/title_principals.tsv tconst"),
                     ("2 ./data/imdb_data/title_basics.tsv ./data/imdb_data/title_ratings.tsv tconst"),
                     ("2 ./data/imdb_data/title_crew.tsv ./data/imdb_data/title_episode.tsv tconst"),
-                    ("2 ./data/imdb_data/title_crew.tsv ./data/imdb_data/title_principals.tsv tconst"),
                     ("2 ./data/imdb_data/title_crew.tsv ./data/imdb_data/title_ratings.tsv tconst"),
-                    ("2 ./data/imdb_data/title_episode.tsv ./data/imdb_data/title_principals.tsv tconst"),
                     ("2 ./data/imdb_data/title_episode.tsv ./data/imdb_data/title_ratings.tsv tconst"),
-                    ("2 ./data/imdb_data/title_principals.tsv ./data/imdb_data/title_ratings.tsv tconst"),
-
                     ("2 ./data/imdb_data/name_basics.tsv ./data/imdb_data/title_principals.tsv nconst"),
-                    ("2 ./data/imdb_data/title_akas.tsv ./data/imdb_data/title_principals.tsv ordering"),
-
                     ("3 ./data/imdb_data/title_basics.tsv ./data/imdb_data/title_crew.tsv ./data/imdb_data/title_episode.tsv tconst"),
-                    ("3 ./data/imdb_data/title_basics.tsv ./data/imdb_data/title_crew.tsv ./data/imdb_data/title_principals.tsv tconst"),
                     ("3 ./data/imdb_data/title_basics.tsv ./data/imdb_data/title_crew.tsv ./data/imdb_data/title_ratings.tsv tconst"),
-                    ("3 ./data/imdb_data/title_basics.tsv ./data/imdb_data/title_episode.tsv ./data/imdb_data/title_principals.tsv tconst"),
                     ("3 ./data/imdb_data/title_basics.tsv ./data/imdb_data/title_episode.tsv ./data/imdb_data/title_ratings.tsv tconst"),
-                    ("3 ./data/imdb_data/title_basics.tsv ./data/imdb_data/title_principals.tsv ./data/imdb_data/title_ratings.tsv tconst"),
                     ("3 ./data/imdb_data/title_crew.tsv ./data/imdb_data/title_episode.tsv ./data/imdb_data/title_ratings.tsv tconst"),
+
+                    # faster ones, less cycles
+                    ("2 ./data/imdb_data/title_basics.tsv ./data/imdb_data/title_principals.tsv tconst"),
+                    ("2 ./data/imdb_data/title_crew.tsv ./data/imdb_data/title_principals.tsv tconst"),
+                    ("2 ./data/imdb_data/title_episode.tsv ./data/imdb_data/title_principals.tsv tconst"),
+                    ("2 ./data/imdb_data/title_principals.tsv ./data/imdb_data/title_ratings.tsv tconst"),
+                    ("2 ./data/imdb_data/title_akas.tsv ./data/imdb_data/title_principals.tsv ordering"),
+                    ("3 ./data/imdb_data/title_basics.tsv ./data/imdb_data/title_crew.tsv ./data/imdb_data/title_principals.tsv tconst"),
+                    ("3 ./data/imdb_data/title_basics.tsv ./data/imdb_data/title_episode.tsv ./data/imdb_data/title_principals.tsv tconst"),
+                    ("3 ./data/imdb_data/title_basics.tsv ./data/imdb_data/title_principals.tsv ./data/imdb_data/title_ratings.tsv tconst"),
                     ("3 ./data/imdb_data/title_ratings.tsv ./data/imdb_data/title_crew.tsv ./data/imdb_data/title_principals.tsv tconst"),]
 
     # run the program for 2 to 6 columns
