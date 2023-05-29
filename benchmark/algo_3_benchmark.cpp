@@ -58,7 +58,7 @@ double rdtsc(std::vector<std::string> tables_str, int num_tables, std::vector<st
     for (i = 0; i < num_runs; ++i) {
         JoinQuery q(tables, num_tables, attributes);
         tbl = q.exec();
-        std::cout << *tbl << std::endl;
+        //std::cout << *tbl << std::endl;
     }
 
     cycles = stop_tsc(start)/num_runs;
@@ -127,10 +127,19 @@ int main(int argc, char **argv) {
 
 
     printf("starting benchmark...\n");
-    //double r = rdtsc(table_path, num_tables, attributes);
+    double r = rdtsc(table_path, num_tables, attributes);
     double c = c_clock(tables, num_tables, attributes);
     printf("benchmark finished\n");
-    //printf("RDTSC instruction:\n %lf cycles measured => %lf seconds, assuming frequency is %lf MHz. (change in source file if different)\n\n", r, r/(FREQUENCY), (FREQUENCY)/1e6);
-    printf("C clock() function:\n %lf cycles measured. On some systems, this number seems to be actually computed from a timer in seconds then transformed into clock ticks using the variable CLOCKS_PER_SEC. Unfortunately, it appears that CLOCKS_PER_SEC is sometimes set improperly. (According to this variable, your computer should be running at %lf MHz). In any case, dividing by this value should give a correct timing: %lf seconds. \n\n",c, (double) CLOCKS_PER_SEC/1e6, c/CLOCKS_PER_SEC);
+    printf("RDTSC instruction:\n %lf cycles measured => %lf seconds, assuming "
+            "frequency is %lf MHz. (change in source file if different)\n\n",
+            r, r / (FREQUENCY), (FREQUENCY) / 1e6);
+    printf("C clock() function:\n %lf cycles measured. On some systems, this "
+            "number seems to be actually computed from a timer in seconds then "
+            "transformed into clock ticks using the variable CLOCKS_PER_SEC. "
+            "Unfortunately, it appears that CLOCKS_PER_SEC is sometimes set "
+            "improperly. (According to this variable, your computer should be "
+            "running at %lf MHz). In any case, dividing by this value should give "
+            "a correct timing: %lf seconds. \n\n",
+            c, (double)CLOCKS_PER_SEC / 1e6, c / CLOCKS_PER_SEC);
     return 0;
 }
