@@ -15,10 +15,10 @@ JoinQuery::JoinQuery(const Table **tables, int num_tables, const std::vector<std
     std::vector<std::string> all_attributes = std::vector<std::string>();
 
     for(int i = 0; i < num_tables; ++i) {
-        hash_tries[i] = HashTrieNode::build(this->tables[i], attributes);
+        hash_tries[i] = HashTrieNode::build(this->tables[i], this->attributes);
         iterators[i] = new HashTrieIterator(hash_tries[i], this->tables[i]->name);
 
-        for(const std::string& a : tables[i]->get_attributes())
+        for(const std::string& a : tables[i]->get_attributes()) 
             all_attributes.push_back(a);
 
         total_attributes += tables[i]->get_num_attributes();
@@ -203,13 +203,14 @@ JoinedTupleBuilder::JoinedTupleBuilder(const Table **tables, int num_tables, con
         int num_attr = 0;
         std::vector<bool> pick;
         for(int j = 0; j < tables[i]->get_num_attributes(); ++j) {
-            bool include = false;
+            bool include = true;
             for(int k = 0; k < join_attributes.size(); ++k) {
                 if(!tables[i]->get_attributes()[j].compare(join_attributes[k])) {
                     if(attribute_taken[k]) {
+                        include = false;
                         break;
                     } 
-                    include = true;
+                    
                     attribute_taken[k] = true;
                 }
             }
