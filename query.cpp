@@ -203,13 +203,13 @@ JoinedTupleBuilder::JoinedTupleBuilder(const Table **tables, int num_tables, con
         int num_attr = 0;
         std::vector<bool> pick;
         for(int j = 0; j < tables[i]->get_num_attributes(); ++j) {
-            bool include = true;
+            bool include = false;
             for(int k = 0; k < join_attributes.size(); ++k) {
                 if(!tables[i]->get_attributes()[j].compare(join_attributes[k])) {
                     if(attribute_taken[k]) {
-                        include = false;
                         break;
                     } 
+                    include = true;
                     attribute_taken[k] = true;
                 }
             }
