@@ -78,10 +78,10 @@ void HashTrieNode::insert_tuple_at(uint64_t hash, Tuple *node) {
     if(!hash_table[index]) {
         HashTrieEntry *entry = new HashTrieEntry();
         hash_table[index] = entry;
+        hash_table[index]->hash = hash;
     } else {
         // in case of hash collision find next free spot
-        bool collision = hash_table[index]->hash != hash && hash_table[index]->tuple_list_ptr;
-        while(collision) {
+        while(hash_table[index]->hash != hash) {
             index++;
             index %= allocated_size;
 
@@ -89,16 +89,17 @@ void HashTrieNode::insert_tuple_at(uint64_t hash, Tuple *node) {
             if(!hash_table[index]) {
                 HashTrieEntry *entry = new HashTrieEntry();
                 hash_table[index] = entry;
+                hash_table[index]->hash = hash;
                 break;
             }
         }
     }
 
     // TODO: once we are confident with implementation we can remove this check to speed up
-    if (!hash_table[index]->points_to_tuple_list) {
+    /*if (!hash_table[index]->points_to_tuple_list) {
         std::cerr << "This entry already points to another hash trie node. Shouldn't append a tuple here.";
         exit(-1);
-    }
+    }*/
 
     hash_table[index]->hash = hash;
     HashTrieEntry *entry = hash_table[index];
@@ -119,8 +120,8 @@ std::ostream &operator<<(std::ostream &os, const HashTrieNode &node) {
 
 std::ostream & HashTrieNode::print_with_indent(std::ostream &os, int num_tabs) const {
     for (int i = 0; i < allocated_size; i++) {
-        //if(!hash_table[i].tuple_list_ptr && !hash_table[i].hash_trie_node_ptr)
-        //    continue;
+        if(!hash_table[i])
+            continue;
         os << "index " << i << " [" << hash_table[i]->hash << "]: " << std::endl;
         for (int j = 0; j < num_tabs + 1; j++) {
             os << "   ";
