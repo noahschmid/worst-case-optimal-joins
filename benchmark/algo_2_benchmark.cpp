@@ -20,7 +20,7 @@
 using namespace std;
 
 #define CALIBRATE
-#define NUM_RUNS 5
+#define NUM_RUNS 16
 #define CYCLES_REQUIRED 1e7
 #define FREQUENCY 2.3e9
 

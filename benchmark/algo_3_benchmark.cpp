@@ -15,13 +15,14 @@
 #include "../query.h"
 using namespace std;
 
-//#define CALIBRATE
-#define NUM_RUNS 5
+#define CALIBRATE
+#define NUM_RUNS 16
 #define CYCLES_REQUIRED 1e7
 #define FREQUENCY 2.8e9
 
-// some garbage value to prevent dead code elimination
-long long num_rows = 0;
+// to prevent dead code elimination
+Table *base_table_ptr = nullptr;
+long long difference = 0;
 
 double rdtsc(const Table** tables, int num_tables, const std::vector<std::string>& attributes) {
     int i, num_runs;
@@ -42,7 +43,7 @@ double rdtsc(const Table** tables, int num_tables, const std::vector<std::string
         for (i = 0; i < num_runs; ++i) {
             // between executions quer.exec() will delete the previous result
             tbl = query.exec();
-            num_rows += tbl->get_num_rows();
+            difference += tbl - base_table_ptr;
         }
         cycles = stop_tsc(start);
 
@@ -51,11 +52,10 @@ double rdtsc(const Table** tables, int num_tables, const std::vector<std::string
         num_runs *= 2;
     }
 #endif
-
     start = start_tsc();
     for (i = 0; i < num_runs; ++i) {
         tbl = query.exec();
-        num_rows += tbl->get_num_rows();
+        difference += tbl - base_table_ptr;
     }
 
     cycles = stop_tsc(start)/num_runs;
@@ -82,7 +82,7 @@ double c_clock(const Table** tables, int num_tables, const std::vector<std::stri
         start = start_tsc();
         for (i = 0; i < num_runs; ++i) {
             tbl = query.exec();
-            num_rows += tbl->get_num_rows();
+            difference += tbl - base_table_ptr;
         }
         cycles = stop_tsc(start);
         if(cycles >= CYCLES_REQUIRED) break;
@@ -94,7 +94,7 @@ double c_clock(const Table** tables, int num_tables, const std::vector<std::stri
     start = clock();
     for (i = 0; i < num_runs; ++i) {
         tbl = query.exec();
-        num_rows += tbl->get_num_rows();
+        difference += tbl - base_table_ptr;
     }
 
     int stop = clock();
@@ -137,7 +137,8 @@ int main(int argc, char **argv) {
             "running at %lf MHz). In any case, dividing by this value should give "
             "a correct timing: %lf seconds. \n\n",
             c, (double)CLOCKS_PER_SEC / 1e6, c / CLOCKS_PER_SEC);
-    printf("Number of rows: %lld\n", num_rows);
+    // print the garbage value of the accumulator to prevent dead code elimination
+    printf("accumulator: %lld\n", difference);
 
     // release memory
     for(int i=0;i<num_tables;i++){
