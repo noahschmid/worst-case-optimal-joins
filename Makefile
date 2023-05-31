@@ -20,7 +20,7 @@ debug:
 	g++ -O0 -g -std=c++17 $(SRC_FILES_MAIN) -o main
 
 bm_alg_2:
-	g++ -std=c++17 $(SRC_FILES_BM) benchmark/algo_2_benchmark.cpp -o bm2.exe -O2
+	g++ -std=c++17 $(SRC_FILES_BM) benchmark/algo_2_benchmark.cpp -o bm2.exe -O3
 
 bm_alg_3:
-	g++ -std=c++17 $(SRC_FILES_BM) benchmark/algo_3_benchmark.cpp -o bm3.exe -O2
+	g++ -std=c++17 $(SRC_FILES_BM) benchmark/algo_3_benchmark.cpp -o bm3.exe -O3

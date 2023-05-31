@@ -51,7 +51,11 @@ Table *JoinQuery::exec() {
     }
 
     enumerate(0);
-
+    // side effect: enumerate() moves iterators to the end
+    // we reset iterators to have a clean state for next execution
+    for(int i = 0; i < num_tables; ++i) {
+        iterators[i]->entry = iterators[i]->cursor->head->next;
+    }
     return results;
 }
 
