@@ -24,3 +24,6 @@ bm_alg_2:
 
 bm_alg_3:
 	g++ -std=c++17 $(SRC_FILES_BM) benchmark/algo_3_benchmark.cpp -o bm3.exe -O3
+
+e2e:
+	g++ -std=c++17 $(SRC_FILES_BM) benchmark/e2e_benchmark.cpp -o e2e.exe -O3
