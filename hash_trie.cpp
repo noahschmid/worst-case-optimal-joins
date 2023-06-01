@@ -226,10 +226,11 @@ bool HashTrieIterator::next() {
         return true;
     }
 }
-
 bool HashTrieIterator::lookup(uint64_t hash) {
 
+    // Local variables
     int index = hash >> cursor->shift;
+    int allocated_size = cursor->allocated_size;
 
     // if there is no entry at that index, item is definitely not in hash table
     if(!cursor->hash_table[index].isInitialized()) {
@@ -237,25 +238,29 @@ bool HashTrieIterator::lookup(uint64_t hash) {
         return false;
     }
 
+    // Found matching hash
+    if(cursor->hash_table[index].hash == hash) {
+        entry = &cursor->hash_table[index];
+        return true;
+    }
+    
+    int start = (index+1) % allocated_size;
+    
     // if there is an entry at given hash table index with different hash, we have a collision in hashes,
     // therefore we need to iterate over the next entries until we find a matching hash or an empty entry
-    if(cursor->hash_table[index].hash != hash) {
-        int start = index;
-
-        do {
-            index = (index+1)%cursor->allocated_size;
-            if(cursor->hash_table[index].hash == hash && cursor->hash_table[index].isInitialized()) {
-                entry = &cursor->hash_table[index];
-                return true;
-            }
-        } while(start != index);
-
-        return false;
+    for(int i=0; i<start; ++i) {
+        if(cursor->hash_table[i].hash == hash && cursor->hash_table[i].isInitialized()) {
+            entry = &cursor->hash_table[i];
+            return true;
+        }
     }
-
-    // else everything worked, there was a matching entry at index
-    entry = &cursor->hash_table[index];
-    return true;
+    for(int i=start; i<allocated_size; ++i) {
+        if(cursor->hash_table[i].hash == hash && cursor->hash_table[i].isInitialized()) {
+            entry = &cursor->hash_table[i];
+            return true;
+        }
+    }
+    return false;
 }
 
 std::ostream &operator<<(std::ostream &os, const HashTrieIterator &it) {
