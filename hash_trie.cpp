@@ -227,20 +227,21 @@ bool HashTrieIterator::next() {
     }
 }
 bool HashTrieIterator::lookup(uint64_t hash) {
-
+    // OPTIMIZATION: Local variables, remove modular additions, cache locality
     // Local variables
     int index = hash >> cursor->shift;
     int allocated_size = cursor->allocated_size;
+    HashTrieEntry* hash_table = cursor->hash_table;
 
     // if there is no entry at that index, item is definitely not in hash table
-    if(!cursor->hash_table[index].isInitialized()) {
+    if(!hash_table[index].isInitialized()) {
         std::cout << "no entry at index " << index << std::endl;
         return false;
     }
 
     // Found matching hash
-    if(cursor->hash_table[index].hash == hash) {
-        entry = &cursor->hash_table[index];
+    if(hash_table[index].hash == hash) {
+        entry = &hash_table[index];
         return true;
     }
     
@@ -248,22 +249,22 @@ bool HashTrieIterator::lookup(uint64_t hash) {
     
 
     for(int i=start; i<allocated_size; ++i) {
-        if(!cursor->hash_table[i].isInitialized()){
+        if(!hash_table[i].isInitialized()){
             return false;
         }
-        if(cursor->hash_table[i].hash == hash) {
-            entry = &cursor->hash_table[i];
+        if(hash_table[i].hash == hash) {
+            entry = &hash_table[i];
             return true;
         }
     }
     // if there is an entry at given hash table index with different hash, we have a collision in hashes,
     // therefore we need to iterate over the next entries until we find a matching hash or an empty entry
     for(int i=0; i<start; ++i) {
-        if(!cursor->hash_table[i].isInitialized()){
+        if(!hash_table[i].isInitialized()){
             return false;
         }
-        if(cursor->hash_table[i].hash == hash) {
-            entry = &cursor->hash_table[i];
+        if(hash_table[i].hash == hash) {
+            entry = &hash_table[i];
             return true;
         }
     }
