@@ -34,6 +34,7 @@ def run_program(name: str, num_cols: int):
     print(list_duration)
 
 def run_against_mini_data():
+    times = 5
     table_paths = [
         './data/mini_mini_data_1.tsv',
         './data/mini_mini_data_2.tsv',
@@ -44,8 +45,17 @@ def run_against_mini_data():
     list_duration = []
     for table_path in table_paths:
         cmd = f"./bm2.exe {table_path}"
-        output = run(cmd)
-        cycles, dur = parse_output(output)
+        # run the program {times} times and get the average
+        repetitive_cycles = []
+        repetitive_durations = []
+        for _ in range(times):
+            output = run(cmd)
+            single_cycles, single_dur = parse_output(output)
+            repetitive_cycles.append(single_cycles)
+            repetitive_durations.append(single_dur)
+        # calculate the average of the cycles and duration
+        cycles = sum(repetitive_cycles) / len(repetitive_cycles)
+        dur = sum(repetitive_durations) / len(repetitive_durations)
         list_num_cycles.append(cycles)
         list_duration.append(dur)
 

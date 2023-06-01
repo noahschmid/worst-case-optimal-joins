@@ -10,10 +10,7 @@ make
 read `main.cpp` as sample usage code.
 
 ## how to run measurements
-1. Do `make bm_alg_2`, `make bm_alg_3`, or `make e2e` depending on which
-   measurement you want to run.
-2. In the project root directory, run `python -m benchmark.algo_2_measure`, `python -m benchmark.algo_3_measure`,
-or `python -m benchmark.e2e_measure`.  
+Do `make bm_alg_2`, `make bm_alg_3`, or `make e2e` depending on which measurement you want to run.
 
 ## how to run tests
 ```shell
