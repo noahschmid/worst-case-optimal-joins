@@ -33,7 +33,8 @@ struct Tuple {
 // If head->next == nullptr, then this is an empty list.
 // The next node to be inserted should always be at tail->next.
 // WARNING: all nodes in the tuple list should be dynamically created, i.e. via new.
-struct TupleList {
+class TupleList {
+    public:
     Tuple *head;
     Tuple *tail;
 
@@ -52,10 +53,13 @@ struct TupleList {
 
     bool empty() const { return head->next == nullptr; }
 
-    int length();
+    int length() { return len; }
 
     // for debugging purposes
     friend std::ostream &operator<<(std::ostream &os, const TupleList &list);
+
+    private:
+    int len = 0;
 };
 
 #endif //TEAM02_TUPLE_LIST_H
