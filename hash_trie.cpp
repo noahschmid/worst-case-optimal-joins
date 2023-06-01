@@ -246,16 +246,23 @@ bool HashTrieIterator::lookup(uint64_t hash) {
     
     int start = (index+1) % allocated_size;
     
-    // if there is an entry at given hash table index with different hash, we have a collision in hashes,
-    // therefore we need to iterate over the next entries until we find a matching hash or an empty entry
-    for(int i=0; i<start; ++i) {
-        if(cursor->hash_table[i].hash == hash && cursor->hash_table[i].isInitialized()) {
+
+    for(int i=start; i<allocated_size; ++i) {
+        if(!cursor->hash_table[i].isInitialized()){
+            return false;
+        }
+        if(cursor->hash_table[i].hash == hash) {
             entry = &cursor->hash_table[i];
             return true;
         }
     }
-    for(int i=start; i<allocated_size; ++i) {
-        if(cursor->hash_table[i].hash == hash && cursor->hash_table[i].isInitialized()) {
+    // if there is an entry at given hash table index with different hash, we have a collision in hashes,
+    // therefore we need to iterate over the next entries until we find a matching hash or an empty entry
+    for(int i=0; i<start; ++i) {
+        if(!cursor->hash_table[i].isInitialized()){
+            return false;
+        }
+        if(cursor->hash_table[i].hash == hash) {
             entry = &cursor->hash_table[i];
             return true;
         }
