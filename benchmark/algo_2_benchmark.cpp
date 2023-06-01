@@ -23,6 +23,7 @@ using namespace std;
 #define NUM_RUNS 16
 #define CYCLES_REQUIRED 1e7
 #define FREQUENCY 2.3e9
+#define WARMUP_RUNS 16
 
 // to prevent dead code elimination
 HashTrieNode *base_hash_trie = nullptr;
@@ -34,6 +35,12 @@ double rdtsc(Table *table, std::vector<std::string> attributes) {
     myInt64 start;
     num_runs = NUM_RUNS;
     HashTrieNode *tmp_hash_trie = nullptr;
+
+    for (i = 0; i < WARMUP_RUNS; ++i) {
+        tmp_hash_trie = HashTrieNode::build(table, attributes);
+        difference += tmp_hash_trie - base_hash_trie;
+        delete tmp_hash_trie;
+    }
     /*
      * The CPUID instruction serializes the pipeline.
      * Using it, we can create execution barriers around the code we want to time.
@@ -74,6 +81,14 @@ double c_clock(Table *table, std::vector<std::string> attributes) {
     clock_t start, end;
     HashTrieNode *tmp_hash_trie = nullptr;
     num_runs = NUM_RUNS;
+
+
+    for (i = 0; i < WARMUP_RUNS; ++i) {
+        tmp_hash_trie = HashTrieNode::build(table, attributes);
+        difference += tmp_hash_trie - base_hash_trie;
+        delete tmp_hash_trie;
+    }
+
 #ifdef CALIBRATE
     while (num_runs < (1 << 14)) {
         start = clock();

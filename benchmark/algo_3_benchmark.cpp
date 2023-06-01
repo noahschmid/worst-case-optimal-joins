@@ -19,6 +19,7 @@ using namespace std;
 #define NUM_RUNS 16
 #define CYCLES_REQUIRED 1e7
 #define FREQUENCY 2.8e9
+#define WARMUP_RUNS 16
 
 // to prevent dead code elimination
 Table *base_table_ptr = nullptr;
@@ -31,6 +32,12 @@ double rdtsc(const Table** tables, int num_tables, const std::vector<std::string
     num_runs = NUM_RUNS;
     Table* tbl;
     JoinQuery query (tables, num_tables, attributes);
+
+    for (i = 0; i < WARMUP_RUNS; ++i) {
+        // between executions query.exec() will delete the previous result
+        tbl = query.exec();
+        difference += tbl - base_table_ptr;
+    }
     /*
      * The CPUID instruction serializes the pipeline.
      * Using it, we can create execution barriers around the code we want to time.
@@ -41,7 +48,6 @@ double rdtsc(const Table** tables, int num_tables, const std::vector<std::string
     while(num_runs < (1 << 14)) {
         start = start_tsc();
         for (i = 0; i < num_runs; ++i) {
-            // between executions quer.exec() will delete the previous result
             tbl = query.exec();
             difference += tbl - base_table_ptr;
         }
@@ -76,6 +82,11 @@ double c_clock(const Table** tables, int num_tables, const std::vector<std::stri
      * avoid measurements bias due to the timing overhead.
      */
     JoinQuery query(tables, num_tables, attributes);
+    for (i = 0; i < WARMUP_RUNS; ++i) {
+        // between executions query.exec() will delete the previous result
+        tbl = query.exec();
+        difference += tbl - base_table_ptr;
+    }
 
 #ifdef CALIBRATE
     while(num_runs < (1 << 14)) {
