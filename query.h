@@ -4,10 +4,12 @@
 #include <vector>
 #include <iostream>
 #include "hash_trie.h"
+#include "joined_table_builder.h"
 
 class JoinQuery {
 public:
     const int num_tables;
+    JoinedTableBuilder *joined_table_builder = nullptr;
     JoinQuery(const Table **tables, int num_tables, const std::vector<std::string>& attributes);
     Table *exec();
     ~JoinQuery();

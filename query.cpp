@@ -52,11 +52,15 @@ Table *JoinQuery::exec() {
     }
 
     enumerate(0);
+    // TODO: these clear-up work can be done off the critical path
     // side effect: enumerate() moves iterators to the end
     // we reset iterators to have a clean state for next execution
     for(int i = 0; i < num_tables; ++i) {
         iterators[i]->entry = iterators[i]->cursor->head->next;
     }
+
+    delete joined_table_builder;
+    joined_table_builder = nullptr;
     return results;
 }
 
@@ -164,7 +168,10 @@ void JoinQuery::enumerate(int index) {
         }
         std::cout << std::endl;
         #endif
-
+        if (joined_table_builder == nullptr) {
+            joined_table_builder = new JoinedTableBuilder(iterators, num_tables);
+        }
+        joined_table_builder->append_rows(iterators);
         JoinedTupleBuilder builder(tables, num_tables, attributes);
 
         for(int i = 0; i < num_tables; ++i) { 
@@ -176,7 +183,7 @@ void JoinQuery::enumerate(int index) {
                         builder.add_tuple(i, curr_tuple);
                         curr_tuple = curr_tuple->next;
                     }
-                }   
+                }
         }
 
         std::vector<std::vector<int>> r = builder.build();
