@@ -70,19 +70,25 @@ void JoinQuery::enumerate(int index) {
         std::cout << "[" << attributes[index] << "]: joining ";
         #endif
 
+        int min = 0x7fffffff;
+        int i_scan = 0;
+
         std::vector<HashTrieIterator*> join;
         for(int i = 0; i < num_tables; ++i) {
             if(tables[i]->contains_attribute(attributes[index])) {
-                join.push_back(iterators[i]);
-
+                HashTrieIterator*it = iterators[i];
+                join.push_back(it);
+                const unsigned long size = it->get_size();
+                if(size < min) {
+                    min = size;
+                    i_scan = join.size()-1;
+                }
                 #ifdef DEBUG
                 std::cout << tables[i]->name << " ";
                 #endif
             }
         }
 
-        int min = 0x7fffffff;
-        int i_scan = 0;
 
         #ifdef DEBUG
         std::cout << std::endl;
@@ -95,14 +101,6 @@ void JoinQuery::enumerate(int index) {
             return;
         }
 
-        if(join.size() > 1) {
-            for(int i = 0; i < join.size(); ++i) {
-                if(join[i]->get_size() < min) {
-                    min = join[i]->get_size();
-                    i_scan = i;
-                }
-            }
-        }
 
         do {
             #ifdef DEBUG
@@ -131,7 +129,7 @@ void JoinQuery::enumerate(int index) {
                 #endif
             }
 
-            for(int j = 0; j < join.size(); ++j) {
+            for (int j = 0; j < join.size(); ++j) {
                 # ifdef DEBUG
                 std::cout<< "[" << attributes[index] << "]: descend "<<join[j]->name<<" from "<<join[j]->get_hash();
                 #endif

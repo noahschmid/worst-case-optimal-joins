@@ -12,7 +12,6 @@ run:
 	./main
 
 test:
-	rm test
 	g++ -O3 -std=c++17 $(SRC_FILES_TEST) -o test
 	./test
 
