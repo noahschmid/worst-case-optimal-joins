@@ -1,6 +1,7 @@
 #include "joined_table_builder.h"
 
-
+#include <unordered_set>
+#include <string>
 
 JoinedTableBuilder::JoinedTableBuilder(HashTrieIterator *const *iterators, int num_tables): num_tables(num_tables) {
     // calculate the number of columns by summing the lengths of each tuple in each iterator
@@ -61,5 +62,33 @@ void JoinedTableBuilder::clear_columns() {
     for (int i = 0; i < num_columns; ++i) {
         columns[i].clear();
     }
+}
+
+
+
+ColImmutableTable *JoinedTableBuilder::compact(const Table *const *tables, int num_join_attributes) {
+    // create a new table
+    int num_rows = columns[0].size();
+    ColImmutableTable *col_table = new ColImmutableTable(num_rows, num_columns - num_join_attributes);
+    std::unordered_set<std::string> seen_attributes;
+
+    int current_col_index = 0;
+    for (int table_index = 0; table_index < num_tables; table_index++) {
+        const Table* current_table = tables[table_index];
+        for (int col_index = 0; col_index < current_table->num_attributes; col_index++) {
+            const std::string& attribute = current_table->attributes[col_index];
+            if (seen_attributes.find(attribute) == seen_attributes.end()) {
+                col_table->attributes[current_col_index] = attribute;
+                seen_attributes.insert(attribute);
+                // TODO: Intel Intrinsics possible here
+                int col_index_in_builder_columns = table_start_indices[table_index] + col_index;
+                for (int row_index = 0; row_index < num_rows; row_index++) {
+                    col_table->data[current_col_index][row_index] = columns[col_index_in_builder_columns][row_index];
+                }
+                current_col_index++;
+            }
+        }
+    }
+    return col_table;
 }
 

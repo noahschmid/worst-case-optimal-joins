@@ -2,6 +2,7 @@
 #define TEAM02_JOINED_TABLE_BUILDER_H
 #include <vector>
 #include "hash_trie.h"
+#include "col_immutable_table.h"
 
 struct JoinedTableBuilder {
     std::vector<int>* columns;
@@ -23,6 +24,8 @@ struct JoinedTableBuilder {
     void append_rows(HashTrieIterator *const* hash_trie_iterators);
     // should be called off the critical path as it is O(num_columns * num_rows)
     void clear_columns();
+
+    ColImmutableTable* compact(const Table *const *tables, int num_join_attributes);
 private:
     void iterate_from(int index, Tuple** tuple_iterators, HashTrieIterator *const *hash_trie_iterators);
 };

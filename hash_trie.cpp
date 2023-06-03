@@ -79,11 +79,6 @@ void HashTrieNode::insert_tuple_at(uint64_t hash, Tuple *node) {
         index %= allocated_size;
     }
 
-    // TODO: once we are confident with implementation we can remove this check to speed up
-    if (!hash_table[index].points_to_tuple_list) {
-        std::cerr << "This entry already points to another hash trie node. Shouldn't append a tuple here.";
-        exit(-1);
-    }
 
     hash_table[index].hash = hash;
     HashTrieEntry &entry = hash_table[index];
@@ -99,11 +94,6 @@ void HashTrieNode::insert_tuple_at(uint64_t hash, Tuple *node) {
 
 void HashTrieNode::replace_with_hash_trie_node_at(HashTrieNode *node, unsigned long index) {
     HashTrieEntry &entry = hash_table[index];
-    // TODO: once we are confident with implementation we can remove this check to speed up
-    if (!entry.points_to_tuple_list) {
-        std::cerr << "This entry already points to another hash trie node. Shouldn't override the entry.";
-        exit(-1);
-    }
     // we should only insert hash trie nodes at the places where we already placed the tuple list.
     // so no need to update tail.
     entry.points_to_tuple_list = false;
@@ -169,8 +159,8 @@ HashTrieNode* HashTrieNode::build(const Table *table, const std::vector<std::str
 
     for(const std::string& s1 : attributes) {
         int i = 0;
-        for(const std::string& s2 : table->get_attributes()) {
-            if(!s1.compare(s2)) {
+        for(const std::string& s2 : table->attributes) {
+            if(s1 == s2) {
                 indices.push_back(i);
                 break;
             }

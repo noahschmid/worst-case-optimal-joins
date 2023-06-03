@@ -12,7 +12,7 @@ int main(int argc, char **argv) {
     db.load_table("./data/r3.tsv", "R3");
 
     // Executes algorithms 2 & 3 and retrieves join query results
-    Table *result = db.query("JOIN R1,R2,R3 ON v1,v2,v3");
+    auto result = db.query("JOIN R1,R2,R3 ON v1,v2,v3");
 
     // Print results
     if(result)

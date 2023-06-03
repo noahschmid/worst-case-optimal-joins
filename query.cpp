@@ -1,5 +1,5 @@
 #include "query.h"
-#include "joined_tuple_builder.h"
+#include "col_immutable_table.h"
 //#define DEBUG 1
 
 JoinQuery::JoinQuery(const Table **tables, int num_tables, const std::vector<std::string>& join_attributes) : num_tables(num_tables) {
@@ -9,20 +9,15 @@ JoinQuery::JoinQuery(const Table **tables, int num_tables, const std::vector<std
     iterators = (HashTrieIterator**)malloc(num_tables*sizeof(HashTrieIterator*));
     // TODO: optimize this copy statement
     this->attributes = join_attributes;
-    int total_attributes = 0;
+
 
     num_attributes = join_attributes.size();
 
-    std::vector<std::string> all_attributes = std::vector<std::string>();
+
 
     for(int i = 0; i < num_tables; ++i) {
         hash_tries[i] = HashTrieNode::build(this->tables[i], this->attributes);
         iterators[i] = new HashTrieIterator(hash_tries[i], this->tables[i]->name);
-
-        for(const std::string& a : tables[i]->get_attributes()) 
-            all_attributes.push_back(a);
-
-        total_attributes += tables[i]->get_num_attributes();
 
         #ifdef DEBUG
         std::cout << tables[i]->name << std::endl;
@@ -45,7 +40,7 @@ JoinQuery::~JoinQuery() {
     iterators = nullptr;
 }
 
-Table *JoinQuery::exec() {
+ColImmutableTable *JoinQuery::exec() {
     if(results != nullptr) {
         delete results;
         results = nullptr;
@@ -59,6 +54,7 @@ Table *JoinQuery::exec() {
         iterators[i]->entry = iterators[i]->cursor->head->next;
     }
 
+    results = joined_table_builder->compact(tables, num_attributes);
     delete joined_table_builder;
     joined_table_builder = nullptr;
     return results;
@@ -172,35 +168,6 @@ void JoinQuery::enumerate(int index) {
             joined_table_builder = new JoinedTableBuilder(iterators, num_tables);
         }
         joined_table_builder->append_rows(iterators);
-        JoinedTupleBuilder builder(tables, num_tables, attributes);
-
-        for(int i = 0; i < num_tables; ++i) { 
-                if(iterators[i]->get_tuples()) {
-                    builder.duplicate(iterators[i]->get_tuples()->length()-1);
-
-                    const Tuple * curr_tuple = iterators[i]->get_tuples()->head->next;
-                    while(curr_tuple) {
-                        builder.add_tuple(i, curr_tuple);
-                        curr_tuple = curr_tuple->next;
-                    }
-                }
-        }
-
-        std::vector<std::vector<int>> r = builder.build();
-
-        if(!results)
-            results = new Table("Join Result", builder.get_attributes());
-
-        for(const std::vector<int>& row : r) {
-            # ifdef DEBUG
-            std::cout << "[*] appending row: ";
-            for(int i = 0; i < row.size(); ++i) {
-                std::cout << row[i] << ", ";
-            }
-            std::cout<< std::endl;
-            # endif
-            results->append_row(row);
-        }
     }
 }
 

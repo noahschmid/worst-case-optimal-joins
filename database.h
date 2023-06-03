@@ -3,14 +3,14 @@
 
 #include "table.h"
 #include "query.h"
-
+#include "col_immutable_table.h"
 class Database {
 public:
     Database() {};
     ~Database() {};
 
     void load_table(const std::string & filename, const std::string & name);
-    Table *query(const std::string & query_string);
+    ColImmutableTable *query(const std::string & query_string);
 private:
     std::vector<Table> tables;
 };

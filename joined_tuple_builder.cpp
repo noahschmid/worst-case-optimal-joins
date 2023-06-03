@@ -12,10 +12,10 @@ JoinedTupleBuilder::JoinedTupleBuilder(const Table **tables, int num_tables, con
         start_idx_v[i] = 0;
         int num_attr = 0;
         std::vector<bool> pick;
-        for(int j = 0; j < tables[i]->get_num_attributes(); ++j) {
+        for(int j = 0; j < tables[i]->num_attributes; ++j) {
             bool include = true;
             for(int k = 0; k < join_attributes.size(); ++k) {
-                if(!tables[i]->get_attributes()[j].compare(join_attributes[k])) {
+                if(tables[i]->attributes[j]==join_attributes[k]) {
                     if(attribute_taken[k]) {
                         include = false;
                         break;
@@ -27,7 +27,7 @@ JoinedTupleBuilder::JoinedTupleBuilder(const Table **tables, int num_tables, con
 
             if(include) {
                 pick.push_back(true);
-                attributes.push_back(tables[i]->get_attributes()[j]);
+                attributes.push_back(tables[i]->attributes[j]);
                 num_attr++;
             } else {
                 pick.push_back(false);

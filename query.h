@@ -5,13 +5,13 @@
 #include <iostream>
 #include "hash_trie.h"
 #include "joined_table_builder.h"
-
+#include "col_immutable_table.h"
 class JoinQuery {
 public:
     const int num_tables;
     JoinedTableBuilder *joined_table_builder = nullptr;
     JoinQuery(const Table **tables, int num_tables, const std::vector<std::string>& attributes);
-    Table *exec();
+    ColImmutableTable* exec();
     ~JoinQuery();
 private:
     void enumerate(int index);
@@ -20,8 +20,7 @@ private:
     HashTrieNode **hash_tries;
     HashTrieIterator **iterators;
     std::vector<std::string> attributes;
-    // TODO: check memory leak here
-    Table *results = nullptr;
+    ColImmutableTable* results = nullptr;
     int num_attributes;
 };
 
