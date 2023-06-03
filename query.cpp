@@ -38,25 +38,16 @@ JoinQuery::~JoinQuery() {
     hash_tries = nullptr;
     free(iterators);
     iterators = nullptr;
+
+    if(joined_table_builder != nullptr) {
+        delete joined_table_builder;
+        joined_table_builder = nullptr;
+    }
 }
 
 ColImmutableTable *JoinQuery::exec() {
-    if(results != nullptr) {
-        delete results;
-        results = nullptr;
-    }
-
     enumerate(0);
-    // TODO: these clear-up work can be done off the critical path
-    // side effect: enumerate() moves iterators to the end
-    // we reset iterators to have a clean state for next execution
-    for(int i = 0; i < num_tables; ++i) {
-        iterators[i]->entry = iterators[i]->cursor->head->next;
-    }
-
     results = joined_table_builder->compact(tables, num_attributes);
-    delete joined_table_builder;
-    joined_table_builder = nullptr;
     return results;
 }
 
@@ -169,5 +160,21 @@ void JoinQuery::enumerate(int index) {
         }
         joined_table_builder->append_rows(iterators);
     }
+}
+
+void JoinQuery::clear() {
+    if(results != nullptr) {
+        delete results;
+        results = nullptr;
+    }
+
+    // these clear-up work can be done off the critical path
+    // side effect: enumerate() moves iterators to the end
+    // we reset iterators to have a clean state for next execution
+    for(int i = 0; i < num_tables; ++i) {
+        iterators[i]->entry = iterators[i]->cursor->head->next;
+    }
+    delete joined_table_builder;
+    joined_table_builder = nullptr;
 }
 

@@ -12,6 +12,8 @@ public:
     JoinedTableBuilder *joined_table_builder = nullptr;
     JoinQuery(const Table **tables, int num_tables, const std::vector<std::string>& attributes);
     ColImmutableTable* exec();
+    // clear results left over from previous exec() calls
+    void clear();
     ~JoinQuery();
 private:
     void enumerate(int index);

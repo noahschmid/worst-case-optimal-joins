@@ -13,6 +13,7 @@
 #include "../tuple_list.h"
 #include "../hash_trie.h"
 #include "../query.h"
+#include "../col_immutable_table.h"
 using namespace std;
 
 #define CALIBRATE
@@ -22,7 +23,7 @@ using namespace std;
 #define WARMUP_RUNS 16
 
 // to prevent dead code elimination
-Table *base_table_ptr = nullptr;
+ColImmutableTable *base_table_ptr = nullptr;
 long long difference = 0;
 
 double rdtsc(const Table** tables, int num_tables, const std::vector<std::string>& attributes) {
@@ -30,10 +31,9 @@ double rdtsc(const Table** tables, int num_tables, const std::vector<std::string
     myInt64 cycles;
     myInt64 start;
     num_runs = NUM_RUNS;
-    Table* tbl;
 
     for (i = 0; i < WARMUP_RUNS; ++i) {
-        tbl = JoinQuery(tables, num_tables, attributes).exec();
+        auto tbl = JoinQuery(tables, num_tables, attributes).exec();
         difference += tbl - base_table_ptr;
         delete tbl;
     }
@@ -47,7 +47,7 @@ double rdtsc(const Table** tables, int num_tables, const std::vector<std::string
     while(num_runs < (1 << 14)) {
         start = start_tsc();
         for (i = 0; i < num_runs; ++i) {
-            tbl = JoinQuery(tables, num_tables, attributes).exec();
+            auto tbl = JoinQuery(tables, num_tables, attributes).exec();
             difference += tbl - base_table_ptr;
             delete tbl;
         }
@@ -60,7 +60,7 @@ double rdtsc(const Table** tables, int num_tables, const std::vector<std::string
 #endif
     start = start_tsc();
     for (i = 0; i < num_runs; ++i) {
-        tbl = JoinQuery(tables, num_tables, attributes).exec();
+        auto tbl = JoinQuery(tables, num_tables, attributes).exec();
         difference += tbl - base_table_ptr;
         delete tbl;
     }
@@ -74,7 +74,6 @@ double c_clock(const Table** tables, int num_tables, const std::vector<std::stri
     myInt64 cycles;
     myInt64 start;
     num_runs = NUM_RUNS;
-    Table* tbl;
     /* 
      * The CPUID instruction serializes the pipeline.
      * Using it, we can create execution barriers around the code we want to time.
@@ -83,7 +82,7 @@ double c_clock(const Table** tables, int num_tables, const std::vector<std::stri
      */
     for (i = 0; i < WARMUP_RUNS; ++i) {
         // between executions query.exec() will delete the previous result
-        tbl = JoinQuery(tables, num_tables, attributes).exec();
+        auto tbl = JoinQuery(tables, num_tables, attributes).exec();
         difference += tbl - base_table_ptr;
         delete tbl;
     }
@@ -92,7 +91,7 @@ double c_clock(const Table** tables, int num_tables, const std::vector<std::stri
     while(num_runs < (1 << 14)) {
         start = start_tsc();
         for (i = 0; i < num_runs; ++i) {
-            tbl = JoinQuery(tables, num_tables, attributes).exec();
+            auto tbl = JoinQuery(tables, num_tables, attributes).exec();
             difference += tbl - base_table_ptr;
             delete tbl;
         }
@@ -105,7 +104,7 @@ double c_clock(const Table** tables, int num_tables, const std::vector<std::stri
     
     start = clock();
     for (i = 0; i < num_runs; ++i) {
-        tbl = JoinQuery(tables, num_tables, attributes).exec();
+        auto tbl = JoinQuery(tables, num_tables, attributes).exec();
         difference += tbl - base_table_ptr;
         delete tbl;
     }

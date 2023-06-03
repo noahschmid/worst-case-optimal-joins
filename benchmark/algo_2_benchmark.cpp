@@ -148,7 +148,7 @@ int main(int argc, char **argv) {
         }
     } else if (argc == 2) {
         table = new Table(argv[1], "bench_table");
-        attributes = table->get_attributes();
+        attributes = table->attributes;
         printf("%d\n", table->get_num_rows());
     } else {
         printf("usage: <num_columns> <num_rows> OR <path_to_tsv>\n");

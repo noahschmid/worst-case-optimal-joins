@@ -15,8 +15,9 @@ int main(int argc, char **argv) {
     auto result = db.query("JOIN R1,R2,R3 ON v1,v2,v3");
 
     // Print results
-    if(result)
+    if(result) {
         std::cout << *result << std::endl;
+    }
 
     delete result;
 }
