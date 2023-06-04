@@ -95,7 +95,6 @@ void HashTrieNode::insert_tuple_at(uint64_t hash, Tuple *node) {
         }
     }
 
-
     hash_table[index]->hash = hash;
     HashTrieEntry *entry = hash_table[index];
     
