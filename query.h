@@ -4,12 +4,16 @@
 #include <vector>
 #include <iostream>
 #include "hash_trie.h"
-
+#include "joined_table_builder.h"
+#include "col_immutable_table.h"
 class JoinQuery {
 public:
     const int num_tables;
+    JoinedTableBuilder *joined_table_builder = nullptr;
     JoinQuery(const Table **tables, int num_tables, const std::vector<std::string>& attributes);
-    Table *exec();
+    ColImmutableTable* exec();
+    // clear results left over from previous exec() calls
+    void clear();
     ~JoinQuery();
 private:
     void enumerate(int index);
@@ -18,37 +22,8 @@ private:
     HashTrieNode **hash_tries;
     HashTrieIterator **iterators;
     std::vector<std::string> attributes;
-    // TODO: check memory leak here
-    Table *results = nullptr;
+    ColImmutableTable* results = nullptr;
     int num_attributes;
-};
-
-
-class JoinedTupleBuilder {
-public:
-    JoinedTupleBuilder(const Table **tables, int num_tables, const std::vector<std::string> & join_attributes);
-
-    ~JoinedTupleBuilder() {
-        free(start_idx_h);
-        free(start_idx_v);
-    }
-
-    void duplicate(int n);
-    void add_tuple(int table_idx, const Tuple *tuple);
-    std::vector<std::vector<int>> build();
-
-    std::vector<std::string> get_attributes() { return attributes; }
-
-private:
-    const Table **tables;
-    int *start_idx_v; // vertical start index
-    int *start_idx_h; // horizontal start index
-    std::vector<std::vector<bool>> pick_attr;
-    std::vector<std::vector<int>> data;
-    std::vector<std::string> join_attributes;
-    std::vector<std::string> attributes;
-    int num_tables;
-    int total_attributes;
 };
 
 #endif //TEAM02_QUERY_H

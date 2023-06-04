@@ -53,7 +53,7 @@ void Table::append_row(const std::vector<int> &new_row) {
 
 ostream &operator<<(ostream &os, const Table &table) {
     os << "|";
-    for (int i = 0; i < table.get_num_attributes() - 1; ++i) {
+    for (int i = 0; i < table.num_attributes - 1; ++i) {
         os <<  "--------";
     }
 
@@ -75,7 +75,7 @@ ostream &operator<<(ostream &os, const Table &table) {
     
     os << "|" << std::endl << "|";
 
-    for (int i = 0; i < table.get_num_attributes() - 1; ++i) {
+    for (int i = 0; i < table.num_attributes - 1; ++i) {
         os <<  "-------+";
     }
 
@@ -86,7 +86,7 @@ ostream &operator<<(ostream &os, const Table &table) {
     }
 
     os << endl << "|";
-    for (int i = 0; i < table.get_num_attributes() - 1; ++i) {
+    for (int i = 0; i < table.num_attributes - 1; ++i) {
         os <<  "-------+";
     }
 
@@ -105,7 +105,7 @@ ostream &operator<<(ostream &os, const Table &table) {
     }
 
     os << std::endl << "|";
-    for (int i = 0; i < table.get_num_attributes() - 1; ++i) {
+    for (int i = 0; i < table.num_attributes - 1; ++i) {
         os <<  "-------+";
     }
 

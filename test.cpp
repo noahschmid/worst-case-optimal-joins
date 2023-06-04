@@ -23,7 +23,7 @@ int main(int argc, char **argv) {
 
     // Executes algorithms 2 & 3 and retrieves join query results
     JoinQuery query = JoinQuery(tables, 3, join_attributes);
-    Table *result = query.exec();
+    auto result = query.exec();
 
     std::cout << "Test 1: ";
     if (*result == expected_result) {

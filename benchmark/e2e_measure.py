@@ -17,21 +17,10 @@ def main():
     list_duration = []
 
 
-    # list_of_commands = [("2 ./data/imdb_data/title_basics.tsv ./data/imdb_data/title_crew.tsv tconst"),
-    #                 ("2 ./data/imdb_data/title_basics.tsv ./data/imdb_data/title_episode.tsv tconst"),
-    #                 ("2 ./data/imdb_data/title_basics.tsv ./data/imdb_data/title_ratings.tsv tconst"),
-    #                 ("2 ./data/imdb_data/title_crew.tsv ./data/imdb_data/title_episode.tsv tconst"),
-    #                 ("2 ./data/imdb_data/title_crew.tsv ./data/imdb_data/title_ratings.tsv tconst"),
-    #                 ("2 ./data/imdb_data/title_episode.tsv ./data/imdb_data/title_ratings.tsv tconst"),
-    #                 # faster ones, less cycles
-    #                 ("2 ./data/imdb_data/title_basics.tsv ./data/imdb_data/title_principals.tsv tconst"),
-    #                 ("2 ./data/imdb_data/title_episode.tsv ./data/imdb_data/title_principals.tsv tconst"),
-    #                     ]
-
     times = 5
     mini_data_cmd = f"3 ./data/mini_mini_data_1.tsv ./data/mini_mini_data_2.tsv ./data/mini_mini_data_3.tsv v1 v2 v3"
     for _ in range(times):
-        cycles, dur = run_program("bm3.exe", mini_data_cmd)
+        cycles, dur = run_program("e2e.exe", mini_data_cmd)
         list_num_cycles.append(cycles)
         list_duration.append(dur)
 

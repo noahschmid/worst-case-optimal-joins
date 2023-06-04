@@ -20,11 +20,8 @@ public:
 
     int get_num_attributes() const { return num_attributes; }
 
-    std::string get_attribute_name(int i) { return attributes[i]; }
-
     int get_attribute_idx(const std::string& name) const;
 
-    std::vector<std::string> get_attributes() const { return attributes; };
 
     bool contains_attribute(const std::string& name) const;
 
@@ -37,7 +34,6 @@ public:
     // for debugging purposes
     friend std::ostream &operator<<(std::ostream &os, const Table &table);
 
-private:
     int num_attributes;
     std::vector<std::string> attributes;
 };

@@ -12,7 +12,6 @@ run:
 	./main
 
 test:
-	rm test
 	g++ -O3 -std=c++17 $(SRC_FILES_TEST) -o test
 	./test
 
@@ -21,6 +20,10 @@ debug:
 
 bm_alg_2:
 	g++ -std=c++17 $(SRC_FILES_BM) benchmark/algo_2_benchmark.cpp -o bm2.exe -O3
-
+	python3 -m benchmark.algo_2_measure
 bm_alg_3:
 	g++ -std=c++17 $(SRC_FILES_BM) benchmark/algo_3_benchmark.cpp -o bm3.exe -O3
+	python3 -m benchmark.algo_3_measure
+e2e:
+	g++ -std=c++17 $(SRC_FILES_BM) benchmark/e2e_benchmark.cpp -o e2e.exe -O3
+	python3 -m benchmark.e2e_measure

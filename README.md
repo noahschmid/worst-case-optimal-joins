@@ -9,6 +9,14 @@ make
 ## how to get started
 read `main.cpp` as sample usage code.
 
+## how to run measurements
+Do `make bm_alg_2`, `make bm_alg_3`, or `make e2e` depending on which measurement you want to run.
+
+## how to run tests
+```shell
+make test
+```
+
 ## miscellaneous
 
 C++ is chosen as the source file type as we only have to
