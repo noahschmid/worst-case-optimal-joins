@@ -20,11 +20,6 @@ struct HashTrieEntry {
         HashTrieNode *hash_trie_node_ptr;
         TupleList *tuple_list_ptr;
     };
-
-    bool isInitialized() const {
-        if (points_to_tuple_list) { return tuple_list_ptr != nullptr; }
-        else { return hash_trie_node_ptr != nullptr; }
-    }
     
     // the initialized entry in each HashTrieNode are chained via `next` to facilitate enumeration
     HashTrieEntry *next;
@@ -46,7 +41,7 @@ struct HashTrieEntry {
 };
 
 struct HashTrieNode {
-    HashTrieEntry *hash_table;
+    HashTrieEntry **hash_table;
     const unsigned long allocated_size;
     HashTrieNode *parent;
     // Head itself does not point to any data. Head->next is the first initialized entry.
@@ -63,12 +58,9 @@ struct HashTrieNode {
 
     unsigned long calc_hash(int attribute) const { return std::hash<uint64_t>()(attribute); }
 
-    HashTrieEntry &look_up(int attribute) const { return hash_table[calc_hash(attribute)]; }
+    HashTrieEntry &look_up(int attribute) const { return *hash_table[calc_hash(attribute)]; }
 
     void insert_tuple_at(uint64_t hash, Tuple *node);
-
-    // it also sets the node->parent as this (the current hash trie node)
-    void replace_with_hash_trie_node_at(HashTrieNode *node, unsigned long index);
 
     unsigned long size() const { return num_initialized_entries; }
 

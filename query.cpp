@@ -280,7 +280,7 @@ void JoinedTupleBuilder::add_tuple(int table_idx, const Tuple *tuple) {
 
     start_idx_v[table_idx]++;
 
-    #ifdef DEBUG
+    /*#ifdef DEBUG
     std::cout << "..." << std::endl;
     std::cout << *tuple << std::endl;
     for(int i = 0; i < data.size(); ++i) {
@@ -289,7 +289,7 @@ void JoinedTupleBuilder::add_tuple(int table_idx, const Tuple *tuple) {
         }
         std::cout << std::endl;
     }
-    #endif
+    #endif*/
 
 }
 
