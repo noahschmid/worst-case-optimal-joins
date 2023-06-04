@@ -1,4 +1,5 @@
 #include "hash_trie.h"
+#include <assert.h>
 
 using namespace std;
 
@@ -57,13 +58,13 @@ std::ostream & HashTrieEntry::print_with_indent(std::ostream &os, int num_tabs) 
 
 HashTrieNode::HashTrieNode(unsigned long allocated_size_arg, int shift, HashTrieNode *parent_arg) :
         allocated_size(allocated_size_arg), parent(parent_arg), shift(64 - shift) {
-    hash_table = new HashTrieEntry[allocated_size_arg];
+    hash_table = (HashTrieEntry**)calloc(allocated_size_arg, sizeof(HashTrieEntry*));
     head = new HashTrieEntry();
     tail = head;
 }
 
 HashTrieNode::~HashTrieNode() {
-    delete[] hash_table;
+    free(hash_table);
     hash_table = nullptr;
     delete head;
     head = nullptr;
@@ -73,33 +74,38 @@ HashTrieNode::~HashTrieNode() {
 void HashTrieNode::insert_tuple_at(uint64_t hash, Tuple *node) {
     int index = hash >> shift;
 
-    // in case of hash collision find next free spot
-    while(hash_table[index].hash != hash && hash_table[index].tuple_list_ptr) {
-        index++;
-        index %= allocated_size;
+    // if there is no entry yet, create it
+    if(!hash_table[index]) {
+        HashTrieEntry *entry = new HashTrieEntry();
+        hash_table[index] = entry;
+        hash_table[index]->hash = hash;
+    } else {
+        // in case of hash collision find next free spot
+        while(hash_table[index]->hash != hash) {
+            index++;
+            index %= allocated_size;
+
+            // if there is an unallocated entry, we have found a free spot
+            if(!hash_table[index]) {
+                HashTrieEntry *entry = new HashTrieEntry();
+                hash_table[index] = entry;
+                hash_table[index]->hash = hash;
+                break;
+            }
+        }
     }
 
 
-    hash_table[index].hash = hash;
-    HashTrieEntry &entry = hash_table[index];
+    hash_table[index]->hash = hash;
+    HashTrieEntry *entry = hash_table[index];
     
-    if (entry.tuple_list_ptr == nullptr) {
-        entry.tuple_list_ptr = new TupleList();
-        tail->next = &entry;
+    if (entry->tuple_list_ptr == nullptr) {
+        entry->tuple_list_ptr = new TupleList();
+        tail->next = entry;
         tail = tail->next;
         num_initialized_entries ++;
     }
-    entry.tuple_list_ptr->append(node);
-}
-
-void HashTrieNode::replace_with_hash_trie_node_at(HashTrieNode *node, unsigned long index) {
-    HashTrieEntry &entry = hash_table[index];
-    // we should only insert hash trie nodes at the places where we already placed the tuple list.
-    // so no need to update tail.
-    entry.points_to_tuple_list = false;
-    delete entry.tuple_list_ptr;
-    entry.hash_trie_node_ptr = node;
-    node->parent = this;
+    entry->tuple_list_ptr->append(node);
 }
 
 std::ostream &operator<<(std::ostream &os, const HashTrieNode &node) {
@@ -109,13 +115,13 @@ std::ostream &operator<<(std::ostream &os, const HashTrieNode &node) {
 
 std::ostream & HashTrieNode::print_with_indent(std::ostream &os, int num_tabs) const {
     for (int i = 0; i < allocated_size; i++) {
-        //if(!hash_table[i].tuple_list_ptr && !hash_table[i].hash_trie_node_ptr)
-        //    continue;
-        os << "index " << i << " [" << hash_table[i].hash << "]: " << std::endl;
+        if(!hash_table[i])
+            continue;
+        os << "index " << i << " [" << hash_table[i]->hash << "]: " << std::endl;
         for (int j = 0; j < num_tabs + 1; j++) {
             os << "   ";
         }
-        hash_table[i].print_with_indent(os, num_tabs+1);
+        hash_table[i]->print_with_indent(os, num_tabs+1);
         if (i != allocated_size - 1) {
             os << endl;
             for (int j = 0; j < num_tabs; j++) {
@@ -190,7 +196,6 @@ void HashTrieIterator::up() {
     if (tuples) {
         tuples = nullptr;
     } else {
-
         entry = prev_entries.top();
         prev_entries.pop();
         cursor = cursor->parent;
@@ -222,20 +227,24 @@ bool HashTrieIterator::lookup(uint64_t hash) {
     int index = hash >> cursor->shift;
 
     // if there is no entry at that index, item is definitely not in hash table
-    if(!cursor->hash_table[index].isInitialized()) {
+    if(!cursor->hash_table[index]) {
         std::cout << "no entry at index " << index << std::endl;
         return false;
     }
 
     // if there is an entry at given hash table index with different hash, we have a collision in hashes,
     // therefore we need to iterate over the next entries until we find a matching hash or an empty entry
-    if(cursor->hash_table[index].hash != hash) {
+    if(cursor->hash_table[index]->hash != hash) {
         int start = index;
 
         do {
             index = (index+1)%cursor->allocated_size;
-            if(cursor->hash_table[index].hash == hash && cursor->hash_table[index].isInitialized()) {
-                entry = &cursor->hash_table[index];
+            if(!cursor->hash_table[index])
+                continue;
+
+
+            if(cursor->hash_table[index]->hash == hash) {
+                entry = cursor->hash_table[index];
                 return true;
             }
         } while(start != index);
@@ -244,7 +253,7 @@ bool HashTrieIterator::lookup(uint64_t hash) {
     }
 
     // else everything worked, there was a matching entry at index
-    entry = &cursor->hash_table[index];
+    entry = cursor->hash_table[index];
     return true;
 }
 

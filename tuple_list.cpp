@@ -38,19 +38,23 @@ std::ostream &operator<<(std::ostream &os, const Tuple &node) {
 }
 
 TupleList::TupleList() {
+    len = 0;
     head = new Tuple(0);
     tail = head;
 }
 
 
 TupleList::TupleList(const Table &table) : TupleList() {
+    len = 0;
     for (const std::vector<int> &row: table.data) {
         this->append(new Tuple(row));
+        len++;
     }
 }
 
 void TupleList::append(Tuple *node) {
     tail->next = node;
+    len++;
     while (tail->next != nullptr) {
         tail = tail->next;
     }
@@ -59,6 +63,7 @@ void TupleList::append(Tuple *node) {
 void TupleList::merge(TupleList *list) {
     tail->next = list->head->next;
     tail = list->tail;
+    len += list->len;
 }
 
 TupleList::~TupleList() {
@@ -102,15 +107,4 @@ Tuple *TupleList::pop_left() {
     head->next = popped_node->next;
     popped_node->next = nullptr;
     return popped_node;
-}
-
-int TupleList::length() {
-    Tuple *cursor = head;
-    int length = 0;
-    while(cursor->next) {
-        length++;
-        cursor = cursor->next;
-    }
-
-    return length;
 }

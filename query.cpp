@@ -10,10 +10,7 @@ JoinQuery::JoinQuery(const Table **tables, int num_tables, const std::vector<std
     // TODO: optimize this copy statement
     this->attributes = join_attributes;
 
-
     num_attributes = join_attributes.size();
-
-
 
     for(int i = 0; i < num_tables; ++i) {
         hash_tries[i] = HashTrieNode::build(this->tables[i], this->attributes);
@@ -177,4 +174,3 @@ void JoinQuery::clear() {
     delete joined_table_builder;
     joined_table_builder = nullptr;
 }
-
