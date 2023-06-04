@@ -88,17 +88,16 @@ public:
     void down();
     bool next();
     bool lookup(uint64_t hash);
-    unsigned long get_hash() { return entry->hash; };
-    unsigned long get_size() { return cursor->size(); };
+    unsigned long get_hash() const { return entry->hash; };
+    unsigned long get_size() const { return cursor->size(); };
     TupleList *get_tuples() { return tuples; };
 
     friend std::ostream &operator<<(std::ostream &os, const HashTrieIterator &it);
     HashTrieNode *cursor;
     std::string name;
+    HashTrieEntry *entry;
 private:
     TupleList *tuples;
-
-    HashTrieEntry *entry;
     std::stack<HashTrieEntry *> prev_entries;
 };
 

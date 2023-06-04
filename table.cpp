@@ -2,10 +2,11 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <utility>
 
 using namespace std;
 
-Table::Table(const std::string &tsv_filename, std::string name) : name(name) {
+Table::Table(const std::string &tsv_filename, std::string name) : name(std::move(name)) {
     ifstream infile(tsv_filename);
     if (!infile.is_open()) {
         cerr<<("the file " + tsv_filename + " cannot be opened.");
@@ -150,14 +151,52 @@ Table *Table::select(const std::vector<std::string>& attributes) const {
     return table;
 }
 
-bool Table::equals(Table *other) {
-    if(other->data.size() != data.size() || other->data[0].size() != data.size()) {
-        for(int i = 0; i < other->data.size(); ++i) {
-            for(int j = 0; j < other->data[i].size(); ++i) {
-                if(other->data[i][j] != data[i][j])
-                    return false;
+bool Table::operator==(const Table &other) const {
+    // when the number of columns or rows are different, the tables are not equal
+    if (other.data.size() != data.size() || other.data[0].size() != data[0].size()) {
+        #ifdef DEBUG
+        if (other.data.size() != data.size()) {
+            std::cerr << "The number of rows are different." << std::endl;
+        } else {
+            std::cerr << "The number of columns are different." << std::endl;
+        }
+        #endif
+        return false;
+    }
+
+    for(int i = 0; i < other.data.size(); ++i) {
+        for(int j = 0; j < other.data[i].size(); ++i) {
+            if(other.data[i][j] != data[i][j]) {
+                #ifdef DEBUG
+                std::cout<<"The values at row "<<i<<" and column "<<j<<" are different."<<std::endl;
+                #endif
+                return false;
             }
         }
     }
     return true;
+}
+
+void Table::serialize(const string &filename) const {
+    ofstream outfile(filename);
+    if (!outfile.is_open()) {
+        cerr<<("the file " + filename + " cannot be opened.");
+        exit(-1);
+    }
+
+    for (const string &attr : attributes) {
+        outfile << attr << " ";
+    }
+    outfile << endl;
+
+    for (const vector<int> &row : data) {
+        for (int i = 0; i < row.size(); i++) {
+            outfile << row[i];
+            if (i != row.size() - 1) {
+                outfile << " ";
+            }
+        }
+        outfile << endl;
+    }
+    outfile.close();
 }

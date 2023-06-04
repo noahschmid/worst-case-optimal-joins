@@ -33,11 +33,15 @@ JoinQuery::JoinQuery(const Table **tables, int num_tables, const std::vector<std
 JoinQuery::~JoinQuery() {
     for(int i = 0; i < num_tables; ++i) {
         delete iterators[i];
+        iterators[i] = nullptr;
         delete hash_tries[i];
+        hash_tries[i] = nullptr;
     }
 
     free(hash_tries);
+    hash_tries = nullptr;
     free(iterators);
+    iterators = nullptr;
 }
 
 Table *JoinQuery::exec() {
@@ -47,7 +51,11 @@ Table *JoinQuery::exec() {
     }
 
     enumerate(0);
-
+    // side effect: enumerate() moves iterators to the end
+    // we reset iterators to have a clean state for next execution
+    for(int i = 0; i < num_tables; ++i) {
+        iterators[i]->entry = iterators[i]->cursor->head->next;
+    }
     return results;
 }
 

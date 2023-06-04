@@ -31,12 +31,11 @@ double rdtsc(const Table** tables, int num_tables, const std::vector<std::string
     myInt64 start;
     num_runs = NUM_RUNS;
     Table* tbl;
-    JoinQuery query (tables, num_tables, attributes);
 
     for (i = 0; i < WARMUP_RUNS; ++i) {
-        // between executions query.exec() will delete the previous result
-        tbl = query.exec();
+        tbl = JoinQuery(tables, num_tables, attributes).exec();
         difference += tbl - base_table_ptr;
+        delete tbl;
     }
     /*
      * The CPUID instruction serializes the pipeline.
@@ -48,8 +47,9 @@ double rdtsc(const Table** tables, int num_tables, const std::vector<std::string
     while(num_runs < (1 << 14)) {
         start = start_tsc();
         for (i = 0; i < num_runs; ++i) {
-            tbl = query.exec();
+            tbl = JoinQuery(tables, num_tables, attributes).exec();
             difference += tbl - base_table_ptr;
+            delete tbl;
         }
         cycles = stop_tsc(start);
 
@@ -60,12 +60,12 @@ double rdtsc(const Table** tables, int num_tables, const std::vector<std::string
 #endif
     start = start_tsc();
     for (i = 0; i < num_runs; ++i) {
-        tbl = query.exec();
+        tbl = JoinQuery(tables, num_tables, attributes).exec();
         difference += tbl - base_table_ptr;
+        delete tbl;
     }
 
     cycles = stop_tsc(start)/num_runs;
-    delete tbl;
     return (double) cycles;
 }
 
@@ -81,19 +81,20 @@ double c_clock(const Table** tables, int num_tables, const std::vector<std::stri
      * The calibrate section is used to make the computation large enough so as to 
      * avoid measurements bias due to the timing overhead.
      */
-    JoinQuery query(tables, num_tables, attributes);
     for (i = 0; i < WARMUP_RUNS; ++i) {
         // between executions query.exec() will delete the previous result
-        tbl = query.exec();
+        tbl = JoinQuery(tables, num_tables, attributes).exec();
         difference += tbl - base_table_ptr;
+        delete tbl;
     }
 
 #ifdef CALIBRATE
     while(num_runs < (1 << 14)) {
         start = start_tsc();
         for (i = 0; i < num_runs; ++i) {
-            tbl = query.exec();
+            tbl = JoinQuery(tables, num_tables, attributes).exec();
             difference += tbl - base_table_ptr;
+            delete tbl;
         }
         cycles = stop_tsc(start);
         if(cycles >= CYCLES_REQUIRED) break;
@@ -104,12 +105,12 @@ double c_clock(const Table** tables, int num_tables, const std::vector<std::stri
     
     start = clock();
     for (i = 0; i < num_runs; ++i) {
-        tbl = query.exec();
+        tbl = JoinQuery(tables, num_tables, attributes).exec();
         difference += tbl - base_table_ptr;
+        delete tbl;
     }
 
     int stop = clock();
-    delete tbl;
     return (double) (stop-start)/num_runs;
 }
 
