@@ -44,7 +44,7 @@ def run_against_mini_data():
     list_num_cycles = []
     list_duration = []
     for table_path in table_paths:
-        cmd = f"./bm2.exe {table_path}"
+        cmd = f"bm2.exe {table_path}"
         # run the program {times} times and get the average
         repetitive_cycles = []
         repetitive_durations = []
