@@ -1,7 +1,11 @@
 #include "joined_tuple_builder.h"
 
 JoinedTupleBuilder::JoinedTupleBuilder(const Table **tables, int num_tables, const std::vector<std::string> & join_attributes) : num_tables(num_tables), tables(tables), join_attributes(join_attributes) {
-    std::vector<bool> attribute_taken = std::vector<bool>(join_attributes.size(), false);
+    // OPTIMIZATION 8: Remove the .size() calls from the innermost for loop of 
+    // the triple nested for loop.
+    int join_attributes_size = join_attributes.size();
+
+    std::vector<bool> attribute_taken = std::vector<bool>(join_attributes_size, false);
     start_idx_h = (int*)malloc(sizeof(int)*num_tables);
     start_idx_v = (int*)malloc(sizeof(int)*num_tables);
     start_idx_h[0] = 0;
@@ -14,7 +18,7 @@ JoinedTupleBuilder::JoinedTupleBuilder(const Table **tables, int num_tables, con
         std::vector<bool> pick;
         for(int j = 0; j < tables[i]->num_attributes; ++j) {
             bool include = true;
-            for(int k = 0; k < join_attributes.size(); ++k) {
+            for(int k = 0; k < join_attributes_size; ++k) {
                 if(tables[i]->attributes[j]==join_attributes[k]) {
                     if(attribute_taken[k]) {
                         include = false;
