@@ -81,7 +81,6 @@ void HashTrieNode::insert_tuple_at(uint64_t hash, Tuple *node) {
         hash_table[index]->hash = hash;
     } else {
         // in case of hash collision find next free spot
-        // OPTIMIZATION: Only do one expensive modulo operation, and do cheaper if/else otherwise
         index %= allocated_size;
         while(hash_table[index]->hash != hash) {
             index++;
@@ -167,7 +166,6 @@ HashTrieNode* HashTrieNode::build(int idx, const int *indices, int len, TupleLis
 HashTrieNode* HashTrieNode::build(const Table *table, const std::vector<std::string>& attributes) {
     std::vector<int> indices;
 
-    // OPTIMIZATION: Increase locality with loop-reordering
     int i = 0;
     for(const std::string& s2 : table->attributes) {
         for(const std::string& s1 : attributes) {
