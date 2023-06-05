@@ -81,9 +81,12 @@ void HashTrieNode::insert_tuple_at(uint64_t hash, Tuple *node) {
         hash_table[index]->hash = hash;
     } else {
         // in case of hash collision find next free spot
+        // OPTIMIZATION: Only do one expensive modulo operation, and do cheaper if/else otherwise
+        index %= allocated_size;
         while(hash_table[index]->hash != hash) {
             index++;
-            index %= allocated_size;
+            if(index >= allocated_size)
+                index=0;
 
             // if there is an unallocated entry, we have found a free spot
             if(!hash_table[index]) {
