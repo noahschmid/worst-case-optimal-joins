@@ -141,7 +141,9 @@ HashTrieNode* HashTrieNode::build(int idx, const int *indices, int len, TupleLis
     
     while(!L->empty()) {
         Tuple *t = L->pop_left();
-        M->insert_tuple_at(M->calc_hash(t->data[indices[idx]]), t);
+
+        // OPTIMIZATION: remove call to calc_hash since it simply returns the value anyway
+        M->insert_tuple_at(t->data[indices[idx]], t);
     }
 
     if (idx >= len-1) {
@@ -225,7 +227,6 @@ bool HashTrieIterator::next() {
     }
 }
 bool HashTrieIterator::lookup(uint64_t hash) {
-    // OPTIMIZATION: Local variables, remove modular additions, cache locality
     // Local variables
     int index = hash >> cursor->shift;
     int allocated_size = cursor->allocated_size;
