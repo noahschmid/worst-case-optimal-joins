@@ -166,15 +166,16 @@ HashTrieNode* HashTrieNode::build(const Table *table, const std::vector<std::str
     std::vector<int> indices;
 
     // OPTIMIZATION: Increase locality with loop-reordering
-    int i = 0;
-    for(const std::string& s2 : table->attributes) {
-        for(const std::string& s1 : attributes) {
+    
+    for(const std::string& s1 : attributes) {
+        int i = 0;
+        for(const std::string& s2 : table->attributes) {
             if(s1 == s2) {
                 indices.push_back(i);
                 break;
             }
+            ++i;
         }
-        ++i;
     }
 
     TupleList L = TupleList(*table);
