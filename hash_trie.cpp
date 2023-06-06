@@ -71,7 +71,7 @@ HashTrieNode::~HashTrieNode() {
     tail = nullptr;
 }
 
-void HashTrieNode::insert_tuple_at(uint64_t hash, Tuple *node) {
+void HashTrieNode::insert_tuple_at(int hash, Tuple *node) {
     int index = hash >> shift;
 
     // if there is no entry yet, create it
@@ -224,7 +224,7 @@ bool HashTrieIterator::next() {
         return true;
     }
 }
-bool HashTrieIterator::lookup(uint64_t hash) {
+bool HashTrieIterator::lookup(int hash) {
     // Local variables
     int index = hash >> cursor->shift;
     int allocated_size = cursor->allocated_size;

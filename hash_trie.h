@@ -14,7 +14,7 @@ struct HashTrieNode;
 struct HashTrieEntry {
     bool points_to_tuple_list;
 
-    uint64_t hash;
+    int hash;
 
     union {
         HashTrieNode *hash_trie_node_ptr;
@@ -56,11 +56,9 @@ struct HashTrieNode {
 
     ~HashTrieNode();
 
-    unsigned long calc_hash(int attribute) const { return std::hash<uint64_t>()(attribute); }
+    HashTrieEntry &look_up(int attribute) const { return *hash_table[attribute]; }
 
-    HashTrieEntry &look_up(int attribute) const { return *hash_table[calc_hash(attribute)]; }
-
-    void insert_tuple_at(uint64_t hash, Tuple *node);
+    void insert_tuple_at(int hash, Tuple *node);
 
     unsigned long size() const { return num_initialized_entries; }
 
@@ -87,7 +85,7 @@ public:
     void up();
     void down();
     bool next();
-    bool lookup(uint64_t hash);
+    bool lookup(int hash);
     unsigned long get_hash() const { return entry->hash; };
     unsigned long get_size() const { return cursor->size(); };
     TupleList *get_tuples() { return tuples; };
