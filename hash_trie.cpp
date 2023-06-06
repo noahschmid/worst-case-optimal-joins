@@ -173,8 +173,8 @@ HashTrieNode* HashTrieNode::build(const Table *table, const std::vector<std::str
                 indices.push_back(i);
                 break;
             }
+            ++i;
         }
-        ++i;
     }
 
     TupleList L = TupleList(*table);
