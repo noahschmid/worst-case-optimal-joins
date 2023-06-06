@@ -3,7 +3,6 @@
 #include <vector>
 #include "hash_trie.h"
 #include "col_immutable_table.h"
-#include <stdalign.h>
 
 struct JoinedTableBuilder {
     std::vector<int>* columns;

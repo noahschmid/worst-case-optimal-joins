@@ -3,7 +3,6 @@
 #include <unordered_set>
 #include <string>
 #include <immintrin.h>
-#include <stdalign.h>
 
 JoinedTableBuilder::JoinedTableBuilder(HashTrieIterator *const *iterators, int num_tables): num_tables(num_tables) {
     // calculate the number of columns by summing the lengths of each tuple in each iterator
@@ -87,7 +86,7 @@ ColImmutableTable *JoinedTableBuilder::compact(const Table *const *tables, int n
 
                 for (; row_index < num_rows - 7; row_index+=8) {
                     __m256i t = _mm256_loadu_si256((__m256i*)(col + row_index));
-                    _mm256_store_si256((__m256i*)(base + row_index), t);
+                    _mm256_storeu_si256((__m256i*)(base + row_index), t);
                 }
 
                 for (; row_index < num_rows; row_index++) {

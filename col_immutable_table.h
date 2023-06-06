@@ -2,7 +2,6 @@
 #define TEAM02_COL_IMMUTABLE_TABLE_H
 #include "table.h"
 #include <iostream>
-#include <stdalign.h>
 
 // a column-oriented immutable table: i.e. once constructed, the table shape cannot be modified
 class ColImmutableTable {
@@ -10,7 +9,7 @@ public:
     const int num_rows;
     const int num_columns;
     std::string * attributes;
-    alignas(32) int **data;
+    int **data;
 
     ColImmutableTable(int num_rows, int num_columns);
     ~ColImmutableTable();
