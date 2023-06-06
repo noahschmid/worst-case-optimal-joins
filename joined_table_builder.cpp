@@ -81,14 +81,17 @@ ColImmutableTable *JoinedTableBuilder::compact(const Table *const *tables, int n
                 seen_attributes.insert(attribute);
                 // OPTIMIZATION: added Intel intrinsics
                 int col_index_in_builder_columns = table_start_indices[table_index] + col_index;
+                int* col = columns[col_index_in_builder_columns].data();
                 int row_index = 0;
+                int *base = col_table->data[current_col_index];
+
                 for (; row_index < num_rows - 7; row_index+=8) {
-                    __m256i t = _mm256_loadu_si256((__m256i*)&(columns[col_index_in_builder_columns][row_index]));
-                    _mm256_store_si256((__m256i*)(col_table->data[current_col_index] + row_index), t);
+                    __m256i t = _mm256_loadu_si256((__m256i*)(col + row_index));
+                    _mm256_store_si256((__m256i*)(base + row_index), t);
                 }
 
                 for (; row_index < num_rows; row_index++) {
-                    col_table->data[current_col_index][row_index] = columns[col_index_in_builder_columns][row_index];
+                    col_table->data[current_col_index][row_index] = col[row_index];
                 }
                 current_col_index++;
             }
