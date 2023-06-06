@@ -80,6 +80,7 @@ void HashTrieNode::insert_tuple_at(int hash, Tuple *node) {
         hash_table[index] = entry;
         hash_table[index]->hash = hash;
     } else {
+        //OPTIMIZATION: Remove unnecessary modulos
         // in case of hash collision find next free spot
         while(hash_table[index]->hash != hash) {
             index++;
@@ -140,7 +141,6 @@ HashTrieNode* HashTrieNode::build(int idx, const int *indices, int len, TupleLis
     while(!L->empty()) {
         Tuple *t = L->pop_left();
 
-        // OPTIMIZATION: remove call to calc_hash since it simply returns the value anyway
         M->insert_tuple_at(t->data[indices[idx]], t);
     }
 
@@ -240,7 +240,7 @@ bool HashTrieIterator::lookup(int hash) {
         entry = cursor_entry;
         return true;
     }
-    
+    //OPTIMIZATION: Remove unnecessary modulo operations
     int i = (index+1);
     
     for(; i<allocated_size; ++i) {
