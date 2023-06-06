@@ -242,10 +242,9 @@ bool HashTrieIterator::lookup(int hash) {
         return true;
     }
     
-    int start = (index+1) % allocated_size;
+    int i = (index+1);
     
-
-    for(int i=start; i<allocated_size; ++i) {
+    for(; i<allocated_size; ++i) {
         cursor_entry = cursor->hash_table[i];
         if(!cursor_entry){
             return false;
@@ -258,7 +257,7 @@ bool HashTrieIterator::lookup(int hash) {
 
     // if there is an entry at given hash table index with different hash, we have a collision in hashes,
     // therefore we need to iterate over the next entries until we find a matching hash or an empty entry
-    for(int i=0; i<start; ++i) {
+    for(i=0; i<=index; ++i) {
         cursor_entry = cursor->hash_table[i];
         if(!cursor_entry){
             return false;
