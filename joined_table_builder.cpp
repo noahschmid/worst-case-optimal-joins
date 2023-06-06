@@ -59,14 +59,11 @@ void JoinedTableBuilder::iterate_from(int index, Tuple** tuple_iterators, HashTr
     tuple_iterator = hash_trie_iterators[index]->get_tuples()->head->next;
 }
 
-
 void JoinedTableBuilder::clear_columns() {
     for (int i = 0; i < num_columns; ++i) {
         columns[i].clear();
     }
 }
-
-
 
 ColImmutableTable *JoinedTableBuilder::compact(const Table *const *tables, int num_join_attributes) {
     // create a new table
@@ -87,7 +84,7 @@ ColImmutableTable *JoinedTableBuilder::compact(const Table *const *tables, int n
                 int row_index = 0;
                 for (; row_index < num_rows - 7; row_index+=8) {
                     __m256i t = _mm256_loadu_si256((__m256i*)&(columns[col_index_in_builder_columns][row_index]));
-                    _mm256_storeu_si256((__m256i*)(col_table->data[current_col_index] + row_index), t);
+                    _mm256_store_si256((__m256i*)(col_table->data[current_col_index] + row_index), t);
                 }
 
                 for (; row_index < num_rows; row_index++) {

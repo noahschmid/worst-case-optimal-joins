@@ -4,7 +4,7 @@ using namespace std;
 ColImmutableTable::ColImmutableTable(int num_rows, int num_columns)
         : num_rows(num_rows), num_columns(num_columns), data(new int *[num_columns]), attributes(new string[num_columns]) {
     for (int i = 0; i < num_columns; ++i) {
-        data[i] = new int[num_rows];
+        data[i] = new alignas(32) int[num_rows];
     }
 }
 
