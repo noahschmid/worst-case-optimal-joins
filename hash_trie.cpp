@@ -81,7 +81,6 @@ void HashTrieNode::insert_tuple_at(int hash, Tuple *node) {
         hash_table[index]->hash = hash;
     } else {
         // in case of hash collision find next free spot
-        index %= allocated_size;
         while(hash_table[index]->hash != hash) {
             index++;
             if(index >= allocated_size)
