@@ -2,6 +2,8 @@
 
 #include <unordered_set>
 #include <string>
+#include <immintrin.h>
+#include <stdalign.h>
 
 JoinedTableBuilder::JoinedTableBuilder(HashTrieIterator *const *iterators, int num_tables): num_tables(num_tables) {
     // calculate the number of columns by summing the lengths of each tuple in each iterator
@@ -80,9 +82,15 @@ ColImmutableTable *JoinedTableBuilder::compact(const Table *const *tables, int n
             if (seen_attributes.find(attribute) == seen_attributes.end()) {
                 col_table->attributes[current_col_index] = attribute;
                 seen_attributes.insert(attribute);
-                // TODO: Intel Intrinsics possible here
+                // OPTIMIZATION: added Intel intrinsics
                 int col_index_in_builder_columns = table_start_indices[table_index] + col_index;
-                for (int row_index = 0; row_index < num_rows; row_index++) {
+                int row_index = 0;
+                for (; row_index < num_rows - 7; row_index+=8) {
+                    __m256i t = _mm256_loadu_si256((__m256i*)&(columns[col_index_in_builder_columns][row_index]));
+                    _mm256_storeu_si256((__m256i*)(col_table->data[current_col_index] + row_index), t);
+                }
+
+                for (; row_index < num_rows; row_index++) {
                     col_table->data[current_col_index][row_index] = columns[col_index_in_builder_columns][row_index];
                 }
                 current_col_index++;
