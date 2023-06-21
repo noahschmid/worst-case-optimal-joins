@@ -16,10 +16,10 @@
 using namespace std;
 
 #define CALIBRATE
-#define NUM_RUNS 16
+#define NUM_RUNS 10
 #define CYCLES_REQUIRED 1e7
 #define FREQUENCY 2.8e9
-#define WARMUP_RUNS 16
+#define WARMUP_RUNS 10
 
 // to prevent dead code elimination
 Table *base_table_ptr = nullptr;

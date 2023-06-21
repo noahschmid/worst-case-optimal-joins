@@ -19,11 +19,10 @@
 
 using namespace std;
 
-#define CALIBRATE
-#define NUM_RUNS 16
+#define NUM_RUNS 10
 #define CYCLES_REQUIRED 1e7
-#define FREQUENCY 2.3e9
-#define WARMUP_RUNS 16
+#define FREQUENCY 2.8e9
+#define WARMUP_RUNS 10
 
 // to prevent dead code elimination
 HashTrieNode *base_hash_trie = nullptr;
@@ -53,51 +52,6 @@ myInt64* rdtsc(Table *table, std::vector<std::string> attributes) {
     }
 
     return results;
-}
-
-double c_clock(Table *table, std::vector<std::string> attributes) {
-    int i, num_runs;
-    double cycles;
-    clock_t start, end;
-    HashTrieNode *tmp_hash_trie = nullptr;
-    num_runs = NUM_RUNS;
-
-
-    for (i = 0; i < WARMUP_RUNS; ++i) {
-        tmp_hash_trie = HashTrieNode::build(table, attributes);
-        difference += tmp_hash_trie - base_hash_trie;
-        delete tmp_hash_trie;
-    }
-
-#ifdef CALIBRATE
-    while (num_runs < (1 << 14)) {
-        start = clock();
-        for (i = 0; i < num_runs; ++i) {
-            tmp_hash_trie = HashTrieNode::build(table, attributes);
-            difference += tmp_hash_trie - base_hash_trie;
-            delete tmp_hash_trie;
-        }
-        end = clock();
-
-        cycles = (double) (end - start);
-
-        // Same as in c_clock: CYCLES_REQUIRED should be expressed accordingly to
-        // the order of magnitude of CLOCKS_PER_SEC
-        if (cycles >= CYCLES_REQUIRED / (FREQUENCY / CLOCKS_PER_SEC))
-            break;
-
-        num_runs *= 2;
-    }
-#endif
-    start = clock();
-    for (i = 0; i < num_runs; ++i) {
-        tmp_hash_trie = HashTrieNode::build(table, attributes);
-        difference += tmp_hash_trie - base_hash_trie;
-        delete tmp_hash_trie;
-    }
-    end = clock();
-
-    return (double) (end - start) / num_runs;
 }
 
 int main(int argc, char **argv) {
