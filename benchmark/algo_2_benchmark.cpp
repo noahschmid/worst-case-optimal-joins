@@ -19,105 +19,39 @@
 
 using namespace std;
 
-#define CALIBRATE
-#define NUM_RUNS 16
+#define NUM_RUNS 10
 #define CYCLES_REQUIRED 1e7
-#define FREQUENCY 2.3e9
-#define WARMUP_RUNS 16
+#define FREQUENCY 2.8e9
+#define WARMUP_RUNS 10
 
 // to prevent dead code elimination
 HashTrieNode *base_hash_trie = nullptr;
 long long difference = 0;
 
-double rdtsc(Table *table, std::vector<std::string> attributes) {
-    int i, num_runs;
-    myInt64 cycles;
-    myInt64 start;
-    num_runs = NUM_RUNS;
+myInt64* rdtsc(Table *table, std::vector<std::string> attributes) {
+    int i;
+    volatile myInt64 cycles;
+    volatile myInt64 start;
     HashTrieNode *tmp_hash_trie = nullptr;
+    myInt64 *results = (myInt64*)malloc(sizeof(myInt64)*NUM_RUNS);
 
     for (i = 0; i < WARMUP_RUNS; ++i) {
-        tmp_hash_trie = HashTrieNode::build(table, attributes);
-        difference += tmp_hash_trie - base_hash_trie;
-        delete tmp_hash_trie;
-    }
-    /*
-     * The CPUID instruction serializes the pipeline.
-     * Using it, we can create execution barriers around the code we want to time.
-     * The calibrate section is used to make the computation large enough so as to
-     * avoid measurements bias due to the timing overhead.
-     */
-#ifdef CALIBRATE
-    while (num_runs < (1 << 14)) {
         start = start_tsc();
-        for (i = 0; i < num_runs; ++i) {
-            tmp_hash_trie = HashTrieNode::build(table, attributes);
-            difference += tmp_hash_trie - base_hash_trie;
-            delete tmp_hash_trie;
-        }
+        tmp_hash_trie = HashTrieNode::build(table, attributes);
         cycles = stop_tsc(start);
-
-        if (cycles >= CYCLES_REQUIRED)
-            break;
-
-        num_runs *= 2;
-    }
-#endif
-
-    start = start_tsc();
-    for (i = 0; i < num_runs; ++i) {
-        tmp_hash_trie = HashTrieNode::build(table, attributes);
         difference += tmp_hash_trie - base_hash_trie;
         delete tmp_hash_trie;
     }
 
-    cycles = stop_tsc(start) / num_runs;
-    return (double) cycles;
-}
-
-double c_clock(Table *table, std::vector<std::string> attributes) {
-    int i, num_runs;
-    double cycles;
-    clock_t start, end;
-    HashTrieNode *tmp_hash_trie = nullptr;
-    num_runs = NUM_RUNS;
-
-
-    for (i = 0; i < WARMUP_RUNS; ++i) {
+    for (i = 0; i < NUM_RUNS; ++i) {
+        start = start_tsc();
         tmp_hash_trie = HashTrieNode::build(table, attributes);
+        results[i] = stop_tsc(start);
         difference += tmp_hash_trie - base_hash_trie;
         delete tmp_hash_trie;
     }
 
-#ifdef CALIBRATE
-    while (num_runs < (1 << 14)) {
-        start = clock();
-        for (i = 0; i < num_runs; ++i) {
-            tmp_hash_trie = HashTrieNode::build(table, attributes);
-            difference += tmp_hash_trie - base_hash_trie;
-            delete tmp_hash_trie;
-        }
-        end = clock();
-
-        cycles = (double) (end - start);
-
-        // Same as in c_clock: CYCLES_REQUIRED should be expressed accordingly to
-        // the order of magnitude of CLOCKS_PER_SEC
-        if (cycles >= CYCLES_REQUIRED / (FREQUENCY / CLOCKS_PER_SEC))
-            break;
-
-        num_runs *= 2;
-    }
-#endif
-    start = clock();
-    for (i = 0; i < num_runs; ++i) {
-        tmp_hash_trie = HashTrieNode::build(table, attributes);
-        difference += tmp_hash_trie - base_hash_trie;
-        delete tmp_hash_trie;
-    }
-    end = clock();
-
-    return (double) (end - start) / num_runs;
+    return results;
 }
 
 int main(int argc, char **argv) {
@@ -156,20 +90,28 @@ int main(int argc, char **argv) {
     }
 
     printf("starting benchmark...\n");
-    double r = rdtsc(table, attributes);
-    double c = c_clock(table, attributes);
+    myInt64 *results = rdtsc(table, attributes);
+    double mean = 0;
+    double std = 0;
+
+    /* calculate mean */
+    for(int i = 0; i < NUM_RUNS; ++i) {
+        mean += results[i];
+    }
+
+    mean /= (double)NUM_RUNS;
+
+    /* calculate standard deviation */
+    for(int i = 0; i < NUM_RUNS; ++i) {
+        std += pow((results[i] - mean), 2);
+    }
+
+    std /= (double)NUM_RUNS;
+    std = sqrt(std);
+
     printf("benchmark finished\n");
-    printf("RDTSC instruction:\n %lf cycles measured => %lf seconds, assuming "
-           "frequency is %lf MHz. (change in source file if different)\n\n",
-           r, r / (FREQUENCY), (FREQUENCY) / 1e6);
-    printf("C clock() function:\n %lf cycles measured. On some systems, this "
-           "number seems to be actually computed from a timer in seconds then "
-           "transformed into clock ticks using the variable CLOCKS_PER_SEC. "
-           "Unfortunately, it appears that CLOCKS_PER_SEC is sometimes set "
-           "improperly. (According to this variable, your computer should be "
-           "running at %lf MHz). In any case, dividing by this value should give "
-           "a correct timing: %lf seconds. \n\n",
-           c, (double) CLOCKS_PER_SEC / 1e6, c / CLOCKS_PER_SEC);
+    printf("cycles: %lf duration: %lf stddev: %lf stddev time: %lf\n",
+            mean, mean / (FREQUENCY), std, std / (FREQUENCY));
     // print the garbage value of the accumulator to prevent dead code elimination
     printf("accumulator: %lld\n", difference);
 
