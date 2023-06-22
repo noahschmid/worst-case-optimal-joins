@@ -1,3 +1,4 @@
+import math
 import os
 
 def run_program(name: str, cmd: str):
@@ -17,7 +18,7 @@ def main():
     list_num_cycles = []
     list_duration = []
 
-    times = 1
+    times = 3
     mini_data_cmd = f"3 ./data/large_r1.tsv ./data/large_r2.tsv ./data/large_r3.tsv v1 v2 v3"
     for _ in range(times):
         cycles, dur, stddev = run_program("./e2e.exe", mini_data_cmd)
@@ -28,9 +29,18 @@ def main():
     # print the average of the cycles and duration
     cycles = sum(list_num_cycles) / len(list_num_cycles)
     dur = sum(list_duration) / len(list_duration)
+
+    std = 0
+    # calculate standard deviation */
+    for i in range(times):
+        std += pow((list_num_cycles[i] - cycles), 2);
+
+    std /= times;
+    std = math.sqrt(std);
+
     print(f"cycles: {cycles}")
     print(f"duration: {dur}")
-    print(f"stddev: {stddev}")
+    print(f"stddev: {std}")
 
 if __name__ == "__main__":
     main()
