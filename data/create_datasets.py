@@ -1,5 +1,10 @@
-REPLICAS = 45
+import sys
 
+try:
+    REPLICAS = int(sys.argv[1])
+except:
+    REPLICAS = 1
+    
 r1_data = [
 "1409058393 1257673436",
 "1574799083 1159977557",
@@ -3009,21 +3014,21 @@ r3_data = [
 "812018463 158972662"]
 
 
-r1_file = open("large_r1.tsv", "w")
+r1_file = open("data/large_r1.tsv", "w")
 r1_file.write("v1 v2\n")
 for i in range(REPLICAS):
     for j in range(len(r1_data)):
         r1_file.write(r1_data[j] + "\n")
 r1_file.close()
 
-r2_file = open("large_r2.tsv", "w")
+r2_file = open("data/large_r2.tsv", "w")
 r2_file.write("v2 v3\n")
 for i in range(REPLICAS):
     for j in range(len(r2_data)):
         r2_file.write(r2_data[j] + "\n")
 r2_file.close()
 
-r3_file = open("large_r3.tsv", "w")
+r3_file = open("data/large_r3.tsv", "w")
 r3_file.write("v1 v3\n")
 for i in range(REPLICAS):
     for j in range(len(r3_data)):
