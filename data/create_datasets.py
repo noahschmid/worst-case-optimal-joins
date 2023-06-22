@@ -3,7 +3,7 @@ import sys
 try:
     REPLICAS = int(sys.argv[1])
 except:
-    REPLICAS = 1
+    REPLICAS = 45
     
 r1_data = [
 "1409058393 1257673436",
